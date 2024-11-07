@@ -7,7 +7,7 @@ public class LinkedListDeque<T> implements Deque<T> {
     int size;
     Node stn; // sentinel;
 
-    LinkedListDeque() {
+    public LinkedListDeque() {
         size = 0;
         stn = new Node(); // stn is supposed to be an empty node;
         stn.prev = stn;

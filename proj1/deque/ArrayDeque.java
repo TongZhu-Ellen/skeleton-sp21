@@ -9,7 +9,7 @@ public class ArrayDeque<T> implements Deque<T> {
     int size;
     T[] array;
 
-    ArrayDeque(){
+    public ArrayDeque(){
         size = 0;
         start = 0;
         end = 1;
