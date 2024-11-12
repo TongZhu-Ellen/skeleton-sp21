@@ -4,7 +4,9 @@ public interface Deque<T> {
 
     void addFirst(T item);
     void addLast(T item);
-    boolean isEmpty();
+    default boolean isEmpty() {
+        return size() == 0; // 默认实现：当 size() 为 0 时返回 true
+    }
     int size();
     void printDeque();
     T removeFirst();
