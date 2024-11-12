@@ -2,10 +2,10 @@ package deque;
 
 import java.util.Iterator;
 
-public class LinkedListDeque<T> implements Deque<T> {
+public class LinkedListDeque<T> implements Deque<T>, Iterable<T> {
 
-    int size;
-    Node stn; // sentinel;
+    private int size;
+    private Node stn; // sentinel;
 
     public LinkedListDeque() {
         size = 0;
@@ -70,9 +70,10 @@ public class LinkedListDeque<T> implements Deque<T> {
 
     @Override
     public void printDeque() {
-        Iterator<T> helperIterator = iterator();
-        while (helperIterator.hasNext()) {
-            System.out.print(helperIterator.next() + " ");
+
+        for (T i: this) {
+            System.out.print(
+                    i + " ");
         }
         System.out.println("");
 
@@ -80,7 +81,7 @@ public class LinkedListDeque<T> implements Deque<T> {
 
     @Override
     public T removeFirst() {
-        if (isEmpty() == true) {
+        if (isEmpty()) {
             return null;
         } else {
             Node newFirst = stn.next.next;
@@ -95,7 +96,7 @@ public class LinkedListDeque<T> implements Deque<T> {
 
     @Override
     public T removeLast() {
-        if (isEmpty() == true) {
+        if (isEmpty()) {
             return null;
         } else {
             Node newLast = stn.prev.prev;
@@ -129,7 +130,7 @@ public class LinkedListDeque<T> implements Deque<T> {
 
     private T helpGetRecursive(Node current, int index) {
         if (index == 0) {
-            return current.next.value; // so basically, start off in stn.next which is the first node;
+            return current.next.value; // start off in stn.next which is the first node;
         } else {
             return helpGetRecursive(current.next, index - 1);
         }
@@ -137,11 +138,11 @@ public class LinkedListDeque<T> implements Deque<T> {
 
 
     public Iterator<T> iterator() {
-        return new lldIterator();
+        return new LldIterator();
 
     }
 
-    private class lldIterator implements Iterator<T> {
+    private class LldIterator implements Iterator<T> {
 
         Node current = stn;
 
@@ -157,5 +158,45 @@ public class LinkedListDeque<T> implements Deque<T> {
             current = current.next;
             return toBeReturned;
         }
+    }
+
+
+
+
+    @Override
+    public boolean equals(Object o) {
+        if ((o instanceof Deque) == false) {
+            return false;
+        }
+        Deque that = (Deque) o;
+
+        if (this.size() != that.size()) {
+            return false;
+        }
+
+
+
+
+        for (int i = 0; i < this.size(); i++) {
+            if (this.get(i).equals(that.get(i)) != true ) {
+                return false;
+            }
+
+        }
+
+        return true;
+
+
+    }
+
+
+
+
+    public static void main(String[] args) {
+        Deque<Integer> dk = new LinkedListDeque<>();
+        dk.addFirst(1);
+        dk.addFirst(0);
+        dk.addFirst(-1);
+        dk.printDeque();;
     }
 }

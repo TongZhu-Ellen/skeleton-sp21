@@ -2,14 +2,14 @@ package deque;
 
 import java.util.Iterator;
 
-public class ArrayDeque<T> implements Deque<T> {
+public class ArrayDeque<T> implements Deque<T>, Iterable<T> {
 
-    int start; // candidate position of addFirst;
-    int end; // candidate position of addLast;
-    int size;
-    T[] array;
+    private int start; // candidate position of addFirst;
+    private int end; // candidate position of addLast;
+    private int size;
+    private T[] array;
 
-    public ArrayDeque(){
+    public ArrayDeque() {
         size = 0;
         start = 0;
         end = 1;
@@ -24,14 +24,14 @@ public class ArrayDeque<T> implements Deque<T> {
     
     // check and reshape if needed;
     private void checkReshapeUp() {
-        if ((double) size / array.length > 0.75 ) {
+        if ((double) size / array.length > 0.75) {
             reshape(2 * array.length);
         }
     }
 
     private void checkReshapeDown() {
         if ((double) size / array.length < 0.25) {
-            reshape( array.length / 2);
+            reshape(array.length / 2);
         }
 
     }
@@ -80,9 +80,10 @@ public class ArrayDeque<T> implements Deque<T> {
 
     @Override
     public void printDeque() {
-        Iterator<T> helperIterator = iterator();
-        while (helperIterator.hasNext()) {
-            System.out.print(helperIterator.next() + " ");
+
+        for (T i: this) {
+            System.out.print(
+                    i + " ");
         }
         System.out.println("");
 
@@ -90,7 +91,7 @@ public class ArrayDeque<T> implements Deque<T> {
 
     @Override
     public T removeFirst() {
-        if (isEmpty() == true) {
+        if (this.isEmpty()) {
             return null;
         } else {
             T removed = array[position(start + 1)];
@@ -103,7 +104,7 @@ public class ArrayDeque<T> implements Deque<T> {
 
     @Override
     public T removeLast() {
-        if (isEmpty() == true) {
+        if (isEmpty()) {
             return null;
         } else {
             T removed = array[position(end - 1)];
@@ -128,10 +129,10 @@ public class ArrayDeque<T> implements Deque<T> {
 
     // generates an iterator based on current status;
     public Iterator<T> iterator() {
-        return new adIterator();
+        return new AdIterator();
     }
 
-    private class adIterator implements Iterator<T> {
+    private class AdIterator implements Iterator<T> {
 
         int curIndex = -1; //
 
@@ -140,7 +141,7 @@ public class ArrayDeque<T> implements Deque<T> {
             // hasNext when nextIndex, which is (curIndex+1), is in [0, size-1];
             // because basically, [0, size-1] would be valid indexing range here;
             // and we need the nextIndex to between that;
-            return (curIndex+1 <= size-1);
+            return (curIndex + 1 <= size - 1);
         }
 
         @Override
@@ -149,5 +150,39 @@ public class ArrayDeque<T> implements Deque<T> {
             curIndex = curIndex + 1;
             return nextItem;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if ((o instanceof Deque)== false) {
+            return false;
+        }
+        Deque that = (Deque) o;
+
+        if (this.size() != that.size()) {
+            return false;
+        }
+
+
+
+
+        for (int i = 0; i < this.size(); i++) {
+            if (this.get(i).equals(that.get(i)) != true ) {
+                return false;
+            }
+
+        }
+
+        return true;
+
+
+    }
+
+    public static void main(String[] args) {
+        Deque<Integer> dk = new ArrayDeque<>();
+        dk.addFirst(1);
+        dk.addFirst(0);
+        dk.addFirst(-1);
+        dk.printDeque();;
     }
 }
