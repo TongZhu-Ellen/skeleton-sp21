@@ -3,60 +3,61 @@ package bstmap;
 import java.util.Iterator;
 import java.util.Set;
 
-
 public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
-
-    private BSTNode<K, V> head;
+    private BSTN<K, V> head;
     private int size;
 
-
-
-    private static class BSTNode<K extends Comparable<K>, V> {
+    private static class BSTN<K extends Comparable<K>, V> { // BST Node;
         K key;
         V value;
-        BSTNode<K, V> left, right;
+        BSTN<K, V> left, right;
 
-        BSTNode(K inputKey, V inputValue) {
-            this.key = inputKey;
-            this.value = inputValue;
+        BSTN(K key, V value) {
+            this.key = key;
+            this.value = value;
             this.left = null;
             this.right = null;
         }
 
 
-        // try finding node that contains the key,
-        // traverse all possible children;
-        // return null if there isn't;
-        static <K extends Comparable<K>, V> BSTNode<K, V> tryFind(BSTNode<K, V> curNode, K key) {
+
+        // starting from start node, try to find a node that contains key;
+        // returns null if no such key found;
+        static <K extends Comparable<K>, V> BSTN<K, V> find(BSTN<K, V> curNode, K key) {
             if (curNode == null) {
                 return null;
             }
             K curKey = curNode.key;
             if (key.compareTo(curKey) < 0) {
-                return tryFind(curNode.left, key);
+                return find(curNode.left, key);
             } else if (key.compareTo(curKey) > 0) {
-                return tryFind(curNode.right, key);
+                return find(curNode.right, key);
             } else {
                 return curNode;
             }
         }
 
-        static <K extends Comparable<K>, V> BSTNode<K, V> insert(BSTNode<K, V> oriNode, K key, V value) {
-            if (oriNode == null) {
-                return new BSTNode<>(key, value);
-            }
-            K oriKey = oriNode.key;
-            if (key.compareTo(oriKey) < 0) {
-                oriNode.left = insert(oriNode.left, key, value);
-            } else if (key.compareTo(oriKey) > 0) {
-                oriNode.right = insert(oriNode.right, key, value);
-            }
 
-            return oriNode;
+        // returns an added version of node with key&value added to the appropriate position;
+        static <K extends Comparable<K>, V> BSTN<K, V> added(BSTN<K, V> curNode, K key, V value) {
+            if (curNode == null) {
+                return new BSTN<>(key, value);
+            }
+            K curKey = curNode.key;
+            if (key.compareTo(curKey) < 0) {
+                curNode.left = added(curNode.left, key, value);
+            } else if (key.compareTo(curKey) > 0) {
+                curNode.right = added(curNode.right, key, value);
+            }
+            return curNode;
         }
 
 
+
+
+
     }
+
 
 
 
@@ -68,20 +69,20 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         this.head = null;
         this.size = 0;
     }
-    
-    
-
 
     @Override
     public boolean containsKey(K key) {
-        BSTNode<K, V> candidateGN = BSTNode.tryFind(this.head, key);
-        return (candidateGN != null);
+        BSTN<K, V> candidateGN = BSTN.find(this.head, key);
+        if (candidateGN == null) {
+            return false;
+        } else {
+            return true;
+        }
     }
-
 
     @Override
     public V get(K key) {
-        BSTNode<K, V> candidateGN = BSTNode.tryFind(this.head, key);
+        BSTN<K, V> candidateGN = BSTN.find(this.head, key);
         if (candidateGN == null) {
             return null;
         } else {
@@ -91,23 +92,16 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
 
     @Override
     public int size() {
-            return this.size;
+        return this.size;
     }
 
     @Override
     public void put(K key, V value) {
-
         if (!this.containsKey(key)) {
-            this.head = BSTNode.insert(this.head, key, value);
+            this.head = BSTN.added(this.head, key, value);
             this.size += 1;
         }
-
     }
-
-
-
-
-
 
     @Override
     public Set<K> keySet() {
@@ -129,9 +123,7 @@ public class BSTMap<K extends Comparable<K>, V> implements Map61B<K, V> {
         throw new UnsupportedOperationException();
     }
 
-
     public void printInOrder() {
-
+        
     }
-
 }
