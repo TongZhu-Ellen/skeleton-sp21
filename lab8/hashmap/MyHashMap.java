@@ -132,15 +132,28 @@ public class MyHashMap<K, V> implements Map61B<K, V> {
             this.helpPut(key, value, this.rowNum(key));
 
         }
+        if (this.checkResize()) {
+            this.resize();
+        }
     }
 
 
-    /*
+
     private boolean checkResize() {
         double loadFactor = (double) this.size() / this.buckets.length;
-        return (loadFactor < this.lfl);
+        return (loadFactor >= this.lfl);
     }
-   */
+
+    private void resize() {
+        int numOfRows = this.buckets.length;
+        MyHashMap<K, V> newHashMap = new MyHashMap<>(2 * numOfRows, this.lfl);
+        for (int i = 0; i < numOfRows; i++) {
+            for (Node n: this.buckets[i]) {
+                newHashMap.put(n.key, n.value);
+            }
+        }
+        this.buckets = newHashMap.buckets;
+    }
 
 
 
