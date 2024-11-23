@@ -12,7 +12,7 @@ import static capers.Utils.*;
 public class Dog implements Serializable{ //
 
     /** Folder that dogs live in. */
-    static final File DOG_FOLDER = Utils.join(CAPERS_FOLDER, "dogs");
+    static final File DOG_FOLDER = join(CAPERS_FOLDER, "dogs");
 
     /** Age of dog. */
     private int age;

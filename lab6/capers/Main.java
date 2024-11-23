@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static capers.Utils.*;
+import static capers.CapersRepository.*;
 
 import static capers.Dog.DOG_FOLDER;
 
@@ -56,16 +57,11 @@ public class Main {
             break;
         case "dog":
             validateNumArgs("dog", args, 4);
-            Dog curDog = new Dog(args[1], args[2], Integer.parseInt(args[3]));
-            curDog.saveDog();
-
+            makeDog(args[1], args[2], Integer.parseInt(args[3]));
             break;
         case "birthday":
             validateNumArgs("birthday", args, 2);
-            String dogName = args[1];
-            File curFile = join(DOG_FOLDER, dogName);
-            Dog thisDog = readObject(curFile, Dog.class);
-            thisDog.haveBirthday();
+            celebrateBirthday(args[1]);
             break;
         default:
             exitWithError(String.format("Unknown command: %s", args[0]));
