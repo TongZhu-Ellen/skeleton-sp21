@@ -1,9 +1,11 @@
 package capers;
 
 import java.io.File;
+import java.io.IOException;
+
 import static capers.Utils.*;
 import static capers.Dog.DOG_FOLDER;
-import static capers.Story.STORY_FILE;
+
 import capers.Utils.*;
 
 /** A repository for Capers 
@@ -21,7 +23,9 @@ public class CapersRepository {
     static final File CWD = new File(System.getProperty("user.dir"));
 
     /** Main metadata folder. */
-    static final File CAPERS_FOLDER = Utils.join(CWD, ".capers");
+    static final File CAPERS_FOLDER = join(CWD, ".capers");
+
+    static final File STORY_FILE = join(CAPERS_FOLDER, "story");
 
 
 
@@ -34,7 +38,7 @@ public class CapersRepository {
      *    - dogs/ -- folder containing all of the persistent data for dogs
      *    - story -- file containing the current story
      */
-    public static void setupPersistence() {
+    public static void setupPersistence() throws IOException {
         // 创建 .capers/ 目录
         if (!CAPERS_FOLDER.exists()) {
             CAPERS_FOLDER.mkdir();
@@ -43,7 +47,7 @@ public class CapersRepository {
             DOG_FOLDER.mkdir();
         }
         if (!STORY_FILE.exists()) {
-            STORY_FILE.mkdir();
+            STORY_FILE.createNewFile();
         }
 
 
@@ -55,11 +59,10 @@ public class CapersRepository {
      * @param text String of the text to be appended to the story
      */
     public static void writeStory(String text) {
-        String wholeText = readContentsAsString(STORY_FILE);
-        wholeText += text;
-        writeContents(STORY_FILE, wholeText);
-        System.out.print(wholeText);
-
+        String oldText = readContentsAsString(STORY_FILE);
+        String newText = oldText + text + "\n";
+        writeContents(STORY_FILE, newText);
+        System.out.println(newText);
     }
 
     /**
@@ -80,8 +83,8 @@ public class CapersRepository {
      * @param name String name of the Dog whose birthday we're celebrating.
      */
     public static void celebrateBirthday(String name) {
-        File curFile = Utils.join(DOG_FOLDER, name);
-        Dog curDog = Utils.readObject(curFile, Dog.class);
+        File curFile = join(DOG_FOLDER, name);
+        Dog curDog = readObject(curFile, Dog.class);
         curDog.haveBirthday();
     }
 }

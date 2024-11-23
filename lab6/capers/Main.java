@@ -2,6 +2,7 @@ package capers;
 
 import java.io.DataOutput;
 import java.io.File;
+import java.io.IOException;
 
 import static capers.Utils.*;
 
@@ -39,7 +40,7 @@ public class Main {
      *
      * @param args arguments from the command line
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         if (args.length == 0) {
             Utils.exitWithError("Must have at least one argument");
         }
@@ -62,8 +63,8 @@ public class Main {
         case "birthday":
             validateNumArgs("birthday", args, 2);
             String dogName = args[1];
-            File curFile = Utils.join(DOG_FOLDER, dogName);
-            Dog thisDog = Utils.readObject(curFile, Dog.class);
+            File curFile = join(DOG_FOLDER, dogName);
+            Dog thisDog = readObject(curFile, Dog.class);
             thisDog.haveBirthday();
             break;
         default:
