@@ -4,6 +4,7 @@ import java.io.File;
 import static capers.Utils.*;
 import static capers.Dog.DOG_FOLDER;
 import static capers.Story.STORY_FILE;
+import capers.Utils.*;
 
 /** A repository for Capers 
  * @author TODO
@@ -54,7 +55,11 @@ public class CapersRepository {
      * @param text String of the text to be appended to the story
      */
     public static void writeStory(String text) {
-        Utils.writeContents(STORY_FILE, text);
+        String wholeText = readContentsAsString(STORY_FILE);
+        wholeText += text;
+        writeContents(STORY_FILE, wholeText);
+        System.out.print(wholeText);
+
     }
 
     /**
