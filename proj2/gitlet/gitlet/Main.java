@@ -22,8 +22,9 @@ public class Main {
             System.exit(0);
         }
         String firstArg = args[0];
-        switch(firstArg) {
+        switch (firstArg) {
             case "init":
+                validArg(args, 1);
                 if (GITLET_DIR.exists()) {
                     System.out.println("A Gitlet version-control system already exists in the current directory.");
                 } else {
@@ -32,7 +33,6 @@ public class Main {
                     initialCommit.save();
                     initialCommit.headIt();
                     initialCommit.masterIt();
-
                 }
                 break;
             case "add":
@@ -41,4 +41,15 @@ public class Main {
             // TODO: FILL THE REST IN
         }
     }
+
+    public static void validArg(String[] args, int n) {
+        if (args.length != n) {
+            throw new RuntimeException("Invalid number of arguments");
+        }
+    }
 }
+
+
+
+
+
