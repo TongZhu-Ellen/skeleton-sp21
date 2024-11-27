@@ -2,7 +2,6 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Date;
 
 import static gitlet.Utils.*;
 
@@ -16,7 +15,7 @@ import static gitlet.Utils.*;
  */
 public class Repository {
     /**
-     *
+     * TODO: add instance variables here.
      *
      * List all instance variables of the Repository class here with a useful
      * comment above them describing what that variable represents and how that
@@ -26,36 +25,25 @@ public class Repository {
     /** The current working directory. */
     public static final File CWD = new File(System.getProperty("user.dir"));
     /** The .gitlet directory. */
-    public static final File GITLET_DIR = join(CWD, ".gitlet");
-    public static final File HEAD = join(GITLET_DIR, ".head");
+        public static final File GITLET_DIR = join(CWD, ".gitlet");
+
+            public static final File ADD_STAGE = join(GITLET_DIR, ".stage_for_addition");
+            public static final File DEL_STAGE = join(GITLET_DIR, ".stage_for_deletion");
+
+            public static final File COMMITS = join(GITLET_DIR, "commits"); // this is a file;
+                public static final File HEAD = join(COMMITS, ".head");
+                public static final File MASTER = join(COMMITS, ".master");
+
+            public static final File BLOBS = join(GITLET_DIR, "blobs"); // this is a dir;
 
 
-
-    public static final File COMMITS_DIR = join(GITLET_DIR, "commits");
-    public static final File BLOBS_DIR = join(GITLET_DIR, "blobs");
-
-
-    // this makes gitlet-dir file in CWD,
-    // makes commits-file in the previous dir,
-    public static void makeDirs() throws IOException {
-        if (!GITLET_DIR.exists()) {
-            GITLET_DIR.mkdir();
-        } else {
-            System.out.println("A Gitlet version-control system already exists in the current directory.");
-            System.exit(0);
-        }
-        COMMITS_DIR.mkdir();
-        Date UnixEpoch  = new Date(0);
-        Commit initialCommit = new Commit(UnixEpoch, "initial commit", null);
-        initialCommit.save();
+    // this is function that sets up files and dirs;
+    // TODO: the 2 Files of XXX_STAGE is not implemented yet; I am not sure about what they should be;
+    static void setDirs() throws IOException {
+        GITLET_DIR.mkdir();
+        COMMITS.createNewFile();
         HEAD.createNewFile();
-        writeObject(HEAD, initialCommit);
-
-        BLOBS_DIR.mkdir();
-
+        MASTER.createNewFile();
+        BLOBS.mkdir();
     }
-
-
-
-
 }
