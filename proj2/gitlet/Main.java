@@ -21,12 +21,11 @@ public class Main {
             System.out.println("Please enter a command.");
             System.exit(0);
         }
-
         String firstArg = args[0];
         switch(firstArg) {
             case "init":
                 if (GITLET_DIR.exists()) {
-                    System.out.println("A Gitlet version-control system already exists in the current directory.");
+                    throw new GitletException("A Gitlet version-control system already exists in the current directory.");
                 } else {
                     Repository.setDirs();
                     Commit initialCommit = new Commit("initial commit", null);
