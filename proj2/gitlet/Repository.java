@@ -42,7 +42,7 @@ public class Repository {
     static void setDirs() {
         try {
             GITLET_DIR.mkdir();
-            COMMITS.createNewFile();
+            COMMITS.mkdir();
             HEAD.createNewFile();
             MASTER.createNewFile();
             BLOBS.mkdir();
