@@ -25,7 +25,7 @@ public class Main {
         switch(firstArg) {
             case "init":
                 if (GITLET_DIR.exists()) {
-                    throw new GitletException("A Gitlet version-control system already exists in the current directory.");
+                    System.out.println("A Gitlet version-control system already exists in the current directory.");
                 } else {
                     Repository.setDirs();
                     Commit initialCommit = new Commit("initial commit", null);
