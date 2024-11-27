@@ -55,13 +55,14 @@ public class Commit implements Serializable {
     }
 
     // saves this particular Commit Obj in COMMITS, using its sha1 as index to find;
-    public void save() throws IOException {
-        File fileName = join(COMMITS, sha1(this));
-        if (!fileName.exists()) {
+    public void save() {
+        try{
+            File fileName = join(COMMITS, sha1(this));
             fileName.createNewFile();
             writeObject(fileName, this);
-        }
+        } catch (Exception ignore) {
 
+        }
     }
 
     public void headIt() {

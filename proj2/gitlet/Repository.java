@@ -39,11 +39,14 @@ public class Repository {
 
     // this is function that sets up files and dirs;
     // TODO: the 2 Files of XXX_STAGE is not implemented yet; I am not sure about what they should be;
-    static void setDirs() throws IOException {
-        GITLET_DIR.mkdir();
-        COMMITS.createNewFile();
-        HEAD.createNewFile();
-        MASTER.createNewFile();
-        BLOBS.mkdir();
+    static void setDirs() {
+        try {
+            GITLET_DIR.mkdir();
+            COMMITS.createNewFile();
+            HEAD.createNewFile();
+            MASTER.createNewFile();
+            BLOBS.mkdir();
+        } catch (Exception ignore) {
+        }
     }
 }
