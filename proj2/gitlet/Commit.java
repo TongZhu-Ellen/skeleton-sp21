@@ -36,6 +36,7 @@ public class Commit implements Serializable {
     public Commit(String messageInput, String parentInput) {
         this.message = messageInput;
         this.parentSha = parentInput;
+        this.timeStamp = new Date();
         if (this.parentSha == null) {
             this.timeStamp = new Date(0);
         }
@@ -56,8 +57,11 @@ public class Commit implements Serializable {
     // saves this particular Commit Obj in COMMITS, using its sha1 as index to find;
     public void save() throws IOException {
         File fileName = join(COMMITS, sha1(this));
-        fileName.createNewFile();
-        writeObject(fileName, this);
+        if (!fileName.exists()) {
+            fileName.createNewFile();
+            writeObject(fileName, this);
+        }
+
     }
 
     public void headIt() {
