@@ -18,7 +18,7 @@ import static gitlet.Repository.COMMITS;
  *
  *  @author TODO
  */
-public class Commit implements Serializable {
+public class Commit implements Serializable{
     /**
      * TODO: add instance variables here.
      *
@@ -57,7 +57,7 @@ public class Commit implements Serializable {
     // saves this particular Commit Obj in COMMITS, using its sha1 as index to find;
     public void save() {
         try{
-            File fileName = join(COMMITS, sha1(this));
+            File fileName = join(COMMITS, sha1(serialize(this)));
             fileName.createNewFile();
             writeObject(fileName, this);
         } catch (Exception ignore) {
@@ -66,11 +66,11 @@ public class Commit implements Serializable {
     }
 
     public void headIt() {
-        writeContents(HEAD, sha1(this));
+        writeContents(HEAD, sha1(serialize(this)));
     }
 
     public void masterIt() {
-        writeObject(MASTER, sha1(this));
+        writeObject(MASTER, sha1(serialize(this)));
     }
 
 
