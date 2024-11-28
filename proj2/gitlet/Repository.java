@@ -2,7 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
+import java.util.*;
 
 import static gitlet.Utils.*;
 
@@ -87,7 +87,63 @@ public class Repository {
     }
 
 
+    static Set<String> fileNamesInAddStage() {
+        Set<String> relativePathsSet = new HashSet<>();
+        for (File file : ADD_STAGE.listFiles()) {
+            String relativePath = ADD_STAGE.toPath().relativize(file.toPath()).toString();
+            relativePathsSet.add(relativePath);  // 添加到 set，自动去重
+        }
+        return relativePathsSet;
+    }
 
+    static Set<String> fileNamesInHead() {
+        return getHeadCommit().files.keySet();
+    }
+
+
+    static void commit(String message) {
+        Commit head = getHeadCommit();
+        Commit newCommit = new Commit(message, shaOfHead());
+        Set<String> fileNamesInAddStage = fileNamesInAddStage();
+
+        Set<String> unchangedFiles = fileNamesInHead();
+        unchangedFiles.removeAll(fileNamesInAddStage);
+
+        for (String s : unchangedFiles) {
+            newCommit.files.put(s, head.files.get(s));
+        }
+
+        for (String s : fileNamesInAddStage) {
+            File fileInAddStage = join(ADD_STAGE, s);
+            byte[] content = readContents(fileInAddStage);
+            String sha = sha1(content);
+            File fileInBlob = join(BLOBS, sha);
+            if (!fileInBlob.exists()) {
+                writeContents(fileInBlob, content);
+            }
+            newCommit.files.put(s, sha);
+        }
+        newCommit.save();
+        newCommit.headIt();
+        newCommit.masterIt();
+        clearDir(ADD_STAGE);
+
+
+
+    }
+
+    static void clearDir(File dir) {
+        for (File file : dir.listFiles()) {
+            file.delete(); // 删除目录下的文件
+        }
+    }
+
+
+
+
+
+    
 
 }
+
 

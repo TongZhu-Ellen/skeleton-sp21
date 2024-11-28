@@ -45,19 +45,29 @@ public class Main {
                     byte[] content = readContents(targetFile);
                     String sha = sha1(content);
                     if (Repository.fileChanged(args[1], sha)) {
-                        File fileInAddStage = join(ADD_STAGE, sha);
+                        File fileInAddStage = join(ADD_STAGE, args[1]);
                         if (!fileInAddStage.exists()) {
                             try {
                                 fileInAddStage.createNewFile();
                             } catch (Exception ignore) {
-
                             }
                             writeContents(fileInAddStage, content);
                         }
                     }
                 }
                 break;
-            // TODO: FILL THE REST IN
+            case "commit":
+                if (ADD_STAGE.listFiles().length == 0) {
+                    System.out.println("No changes added to the commit.");
+                    System.exit(0);
+                }
+                if (args.length == 1) {
+                    System.out.println("Please enter a commit message.");
+                    System.exit(0);
+                }
+                validArg(args, 2);
+                Repository.commit(args[1]);
+                break;
         }
     }
 
