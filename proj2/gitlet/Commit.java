@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date; // TODO: You'll likely use this in this class
+import java.util.HashMap;
 import java.util.Map;
 
 import static gitlet.Repository.*;
@@ -31,7 +32,7 @@ public class Commit implements Serializable{
     private String message;
     private Date timeStamp;
     private String parentSha;
-    Map<String, String> files; // maps from name to sha;
+    Map<String, String> files = new HashMap<>();; // maps from name to sha;
 
     Commit(String messageInput, String parentInput) {
         this.message = messageInput;
