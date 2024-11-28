@@ -1,5 +1,6 @@
 package gitlet;
 
+import java.io.File;
 import java.io.IOException;
 import gitlet.Utils.*;
 
@@ -36,7 +37,25 @@ public class Main {
                 }
                 break;
             case "add":
-                // TODO: handle the `add [filename]` command
+                validArg(args, 2);
+                File targetFile = join(CWD, args[1]);
+                if (!targetFile.exists()) {
+                    System.out.println("File does not exist.");
+                } else {
+                    byte[] content = readContents(targetFile);
+                    String sha = sha1(content);
+                    if (Repository.fileChanged(args[1], sha)) {
+                        File fileInAddStage = join(ADD_STAGE, sha);
+                        if (!fileInAddStage.exists()) {
+                            try {
+                                fileInAddStage.createNewFile();
+                            } catch (Exception ignore) {
+
+                            }
+                            writeContents(fileInAddStage, content);
+                        }
+                    }
+                }
                 break;
             // TODO: FILL THE REST IN
         }

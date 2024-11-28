@@ -31,9 +31,9 @@ public class Commit implements Serializable{
     private String message;
     private Date timeStamp;
     private String parentSha;
-    Map<String, String> files; // what's in this commit? this is the map from name to blobSha;
+    Map<String, String> files; // maps from name to sha;
 
-    public Commit(String messageInput, String parentInput) {
+    Commit(String messageInput, String parentInput) {
         this.message = messageInput;
         this.parentSha = parentInput;
         this.timeStamp = new Date();
@@ -42,20 +42,20 @@ public class Commit implements Serializable{
         }
     }
 
-    public String getMessage() {
+    String getMessage() {
         return this.message;
     }
 
-    public  Date getTimeStamp() {
+    Date getTimeStamp() {
         return this.timeStamp;
     }
 
-    public String getParent() {
+    String getParent() {
         return this.parentSha;
     }
 
     // saves this particular Commit Obj in COMMITS, using its sha1 as index to find;
-    public void save() {
+    void save() {
         try{
             File fileName = join(COMMITS, sha1(serialize(this)));
             fileName.createNewFile();
@@ -65,13 +65,15 @@ public class Commit implements Serializable{
         }
     }
 
-    public void headIt() {
+    void headIt() {
         writeContents(HEAD, sha1(serialize(this)));
     }
 
-    public void masterIt() {
+    void masterIt() {
         writeObject(MASTER, sha1(serialize(this)));
     }
+
+
 
 
 
