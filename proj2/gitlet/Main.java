@@ -68,6 +68,11 @@ public class Main {
                 validArg(args, 2);
                 Repository.commit(args[1]);
                 break;
+
+            case "checkout":
+                Repository.checkout(getHeadCommit(), args[2]);
+
+
         }
     }
 

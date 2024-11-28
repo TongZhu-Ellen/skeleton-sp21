@@ -100,6 +100,19 @@ public class Repository {
         return getHeadCommit().files.keySet();
     }
 
+    static void putInBlobDir(byte[] content) {
+        String sha = sha1(content);
+        File file = join(BLOBS, sha);
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (Exception ignore) {
+
+            }
+            writeContents(file, content);
+        }
+    }
+
 
     static void commit(String message) {
         Commit head = getHeadCommit();
@@ -116,19 +129,15 @@ public class Repository {
         for (String s : fileNamesInAddStage) {
             File fileInAddStage = join(ADD_STAGE, s);
             byte[] content = readContents(fileInAddStage);
-            String sha = sha1(content);
-            File fileInBlob = join(BLOBS, sha);
-            if (!fileInBlob.exists()) {
-                writeContents(fileInBlob, content);
-            }
-            newCommit.files.put(s, sha);
+            // 存储文件到 BLOBS 目录
+            putInBlobDir(content);
+            // 添加到 commit 文件映射
+            newCommit.files.put(s, sha1(content));
         }
         newCommit.save();
         newCommit.headIt();
         newCommit.masterIt();
         clearDir(ADD_STAGE);
-
-
 
     }
 
@@ -139,11 +148,23 @@ public class Repository {
     }
 
 
+    static void checkout(Commit certainCommit, String fileName) {
+        // find this file in certainCommit;
+        // find its blob;
+        // use this data to change that file in CWD;
+        if (!certainCommit.files.keySet().contains(fileName)) {
+            System.out.println("File does not exist in that commit.");
+            System.exit(0);
+        }
+        String sha = certainCommit.files.get(fileName);
 
+        File fileInBlobsDir = join(BLOBS, sha);
+        byte[] content = readContents(fileInBlobsDir);
 
+        File fileInCWD = join(CWD, fileName);
+        writeContents(fileInCWD, content);
 
-    
-
+    }
 }
 
 
