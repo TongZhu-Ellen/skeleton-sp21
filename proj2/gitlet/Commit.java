@@ -83,8 +83,9 @@ public class Commit implements Serializable {
     void printThisLog() {
         System.out.println("===");
         System.out.println("commit " + sha1(serialize(this)));
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy Z");
-        System.out.println(dateFormat.format(this.timeStamp));
+        // Adjust the format to remove timezone offset, and match the required format
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
+        System.out.println(dateFormat.format(this.timeStamp));  // Prints without timezone offset
         System.out.println(this.message);
         System.out.println("");
     }
