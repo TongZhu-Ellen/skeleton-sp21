@@ -19,7 +19,7 @@ import static gitlet.Repository.COMMITS;
  *
  *  @author TODO
  */
-public class Commit implements Serializable{
+public class Commit implements Serializable {
     /**
      * TODO: add instance variables here.
      *
@@ -28,11 +28,14 @@ public class Commit implements Serializable{
      * variable is used. We've provided one example for `message`.
      */
 
-    /** The message of this Commit. */
+    /**
+     * The message of this Commit.
+     */
     private String message;
     private Date timeStamp;
     private String parentSha;
-    Map<String, String> files = new HashMap<>();; // maps from name to sha;
+    Map<String, String> files = new HashMap<>();
+    ; // maps from name to sha;
 
     Commit(String messageInput, String parentInput) {
         this.message = messageInput;
@@ -57,7 +60,7 @@ public class Commit implements Serializable{
 
     // saves this particular Commit Obj in COMMITS, using its sha1 as index to find;
     void save() {
-        try{
+        try {
             File fileName = join(COMMITS, sha1(serialize(this)));
             fileName.createNewFile();
             writeObject(fileName, this);
@@ -83,19 +86,17 @@ public class Commit implements Serializable{
     }
 
     void printLogFromThis() {
-        Commit currentCommit = this;
-        while (currentCommit.parentSha != null) {  // 只需检查 parentSha 是否为 null
-            File parentFile = join(COMMITS, currentCommit.parentSha);
-            Commit parentCommit = readObject(parentFile, Commit.class);
-            parentCommit.printThisLog();  // 打印父提交的日志
-            currentCommit = parentCommit;  // 更新当前提交为父提交
+        this.printThisLog();
+        if (this.parentSha != null) {
+            Commit parCommit = getCommitFromSha(this.parentSha);
+            parCommit.printLogFromThis();
         }
     }
 
 
-
-
-
-
-
 }
+
+
+
+
+

@@ -205,10 +205,9 @@ public class Repository {
 
 
 
-    static void printLog() {
-        getHeadCommit().printLogFromThis();
 
-    }
+
+
 
 }
 

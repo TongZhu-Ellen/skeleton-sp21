@@ -79,7 +79,7 @@ public class Main {
                 break;
 
             case "log":
-                Repository.printLog();
+                getHeadCommit().printLogFromThis();
 
         }
     }
