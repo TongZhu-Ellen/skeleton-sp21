@@ -5,6 +5,7 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Date; // TODO: You'll likely use this in this class
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +43,7 @@ public class Commit implements Serializable {
         this.parentSha = parentInput;
         this.timeStamp = new Date();
         if (this.parentSha == null) {
-            this.timeStamp = new Date(0);
+            this.timeStamp = Date.from(Instant.EPOCH);
         }
     }
 
