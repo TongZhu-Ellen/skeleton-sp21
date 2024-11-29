@@ -5,6 +5,7 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date; // TODO: You'll likely use this in this class
 import java.util.HashMap;
@@ -35,7 +36,7 @@ public class Commit implements Serializable {
     private String message;
     private Date timeStamp;
     private String parentSha;
-    Map<String, String> files = new HashMap<>();
+    Map<String, String> files;
     ; // maps from name to sha;
 
     Commit(String messageInput, String parentInput) {
@@ -43,8 +44,9 @@ public class Commit implements Serializable {
         this.parentSha = parentInput;
         this.timeStamp = new Date();
         if (this.parentSha == null) {
-            this.timeStamp = Date.from(Instant.EPOCH);
+            this.timeStamp = new Date(0);
         }
+        this.files = new HashMap<>();
     }
 
     String getMessage() {
@@ -81,7 +83,8 @@ public class Commit implements Serializable {
     void printThisLog() {
         System.out.println("===");
         System.out.println("commit " + sha1(serialize(this)));
-        System.out.println(this.timeStamp);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy Z");
+        System.out.println(dateFormat.format(this.timeStamp));
         System.out.println(this.message);
         System.out.println("");
     }
