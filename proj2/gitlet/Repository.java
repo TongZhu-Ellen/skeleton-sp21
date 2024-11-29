@@ -96,6 +96,16 @@ public class Repository {
         return relativePathsSet;
     }
 
+    static Set<String> shasInCommitsDir() {
+        Set<String> relativePathsSet = new HashSet<>();
+        for (File file : COMMITS.listFiles()) {
+            String relativePath = COMMITS.toPath().relativize(file.toPath()).toString();
+            relativePathsSet.add(relativePath);  // 添加到 set，自动去重
+        }
+        return relativePathsSet;
+    }
+
+
     static Set<String> fileNamesInHead() {
         return getHeadCommit().files.keySet();
     }
@@ -165,6 +175,24 @@ public class Repository {
         writeContents(fileInCWD, content);
 
     }
+
+
+    static String findUniqueMatch(Set<String> set, String prefix) {
+        return set.stream()
+                .filter(s -> s.startsWith(prefix))
+                .reduce((a, b) -> { throw new IllegalArgumentException("Ambiguous prefix: " + prefix); })
+                .orElseGet(() -> {
+                    System.out.println("No commit with that id exists.");
+                    System.exit(0);
+                    return null; // 由于 System.exit(0)，实际不会返回 null
+                });
+    }
+
+    static Commit getCommitFromSha(String sha) {
+        File file = join(COMMITS, sha);
+        return readObject(file, Commit.class);
+    }
+
 }
 
 

@@ -70,7 +70,14 @@ public class Main {
                 break;
 
             case "checkout":
-                Repository.checkout(getHeadCommit(), args[2]);
+                if (args.length == 2) {
+                    Repository.checkout(getHeadCommit(), args[1]);
+                } else if (args.length == 3) {
+                    String completeSha = Repository.findUniqueMatch(shasInCommitsDir(), args[1]);
+                    Repository.checkout(Repository.getCommitFromSha(completeSha), args[2]);
+                }
+
+                break;
 
 
         }
@@ -81,6 +88,7 @@ public class Main {
             throw new RuntimeException("Invalid number of arguments");
         }
     }
+
 }
 
 
