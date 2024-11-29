@@ -180,12 +180,10 @@ public class Repository {
     static String findUniqueMatch(Set<String> set, String prefix) {
         return set.stream()
                 .filter(s -> s.startsWith(prefix))
-                .reduce((a, b) -> { throw new IllegalArgumentException("Ambiguous prefix: " + prefix); })
-                .orElseGet(() -> {
-                    System.out.println("No commit with that id exists.");
-                    System.exit(0);
-                    return null; // 由于 System.exit(0)，实际不会返回 null
-                });
+                .reduce((a, b) -> {
+                    throw new IllegalArgumentException("Ambiguous prefix: " + prefix + " matches multiple ids: " + a + " and " + b);
+                })
+                .orElseThrow(() -> new IllegalArgumentException("No commit with that id exists."));
     }
 
     static Commit getCommitFromSha(String sha) {
