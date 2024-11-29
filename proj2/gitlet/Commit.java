@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date; // TODO: You'll likely use this in this class
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import static gitlet.Repository.*;
@@ -84,7 +85,7 @@ public class Commit implements Serializable {
         System.out.println("===");
         System.out.println("commit " + sha1(serialize(this)));
         // Adjust the format to remove timezone offset, and match the required format
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z", Locale.ENGLISH);
         System.out.println(dateFormat.format(this.timeStamp));  // Prints without timezone offset
         System.out.println(this.message);
         System.out.println("");
