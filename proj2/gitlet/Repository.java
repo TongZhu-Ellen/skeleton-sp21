@@ -3,6 +3,7 @@ package gitlet;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static gitlet.Utils.*;
 
@@ -178,12 +179,23 @@ public class Repository {
 
 
     static String findUniqueMatch(Set<String> set, String prefix) {
-        return set.stream()
+        // 先找到所有与前缀匹配的提交 ID
+        List<String> matches = set.stream()
                 .filter(s -> s.startsWith(prefix))
-                .reduce((a, b) -> {
-                    throw new IllegalArgumentException("Ambiguous prefix: " + prefix + " matches multiple ids: " + a + " and " + b);
-                })
-                .orElseThrow(() -> new IllegalArgumentException("No commit with that id exists."));
+                .collect(Collectors.toList());
+
+        // 如果没有匹配项，抛出异常
+        if (matches.isEmpty()) {
+            throw new IllegalArgumentException("No commit with that id exists.");
+        }
+
+        // 如果找到一个匹配项，直接返回该项
+        if (matches.size() == 1) {
+            return matches.get(0);
+        }
+
+        // 如果匹配项不唯一，抛出异常
+        throw new IllegalArgumentException("Ambiguous prefix: " + prefix + " matches multiple ids: " + matches);
     }
 
     static Commit getCommitFromSha(String sha) {

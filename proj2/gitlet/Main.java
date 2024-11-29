@@ -70,11 +70,11 @@ public class Main {
                 break;
 
             case "checkout":
-                if (args.length == 2) {
-                    Repository.checkout(getHeadCommit(), args[1]);
-                } else if (args.length == 3) {
+                if (args.length == 3) {
+                    Repository.checkout(getHeadCommit(), args[2]);
+                } else if (args.length == 4) {
                     String completeSha = Repository.findUniqueMatch(shasInCommitsDir(), args[1]);
-                    Repository.checkout(Repository.getCommitFromSha(completeSha), args[2]);
+                    Repository.checkout(Repository.getCommitFromSha(completeSha), args[3]);
                 }
 
                 break;
