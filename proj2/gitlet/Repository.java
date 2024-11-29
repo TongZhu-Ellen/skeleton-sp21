@@ -203,6 +203,13 @@ public class Repository {
         return readObject(file, Commit.class);
     }
 
+
+
+    static void printLog() {
+        getHeadCommit().printLogFromThis();
+
+    }
+
 }
 
 

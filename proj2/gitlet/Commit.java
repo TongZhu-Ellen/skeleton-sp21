@@ -74,6 +74,23 @@ public class Commit implements Serializable{
         writeObject(MASTER, sha1(serialize(this)));
     }
 
+    void printThisLog() {
+        System.out.println("===");
+        System.out.println("commit " + sha1(serialize(this)));
+        System.out.println(this.timeStamp);
+        System.out.println(this.message);
+        System.out.println("");
+    }
+
+    void printLogFromThis() {
+        Commit currentCommit = this;
+        while (currentCommit.parentSha != null) {  // 只需检查 parentSha 是否为 null
+            File parentFile = join(COMMITS, currentCommit.parentSha);
+            Commit parentCommit = readObject(parentFile, Commit.class);
+            parentCommit.printThisLog();  // 打印父提交的日志
+            currentCommit = parentCommit;  // 更新当前提交为父提交
+        }
+    }
 
 
 

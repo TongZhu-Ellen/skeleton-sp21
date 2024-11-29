@@ -76,9 +76,10 @@ public class Main {
                     String completeSha = Repository.findUniqueMatch(shasInCommitsDir(), args[1]);
                     Repository.checkout(Repository.getCommitFromSha(completeSha), args[3]);
                 }
-
                 break;
 
+            case "log":
+                Repository.printLog();
 
         }
     }
