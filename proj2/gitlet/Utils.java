@@ -274,24 +274,6 @@ class Utils {
         System.out.println();
     }
 
-    static String matchCommitId(Set<String> set, String prefix) {
-        String matched = null;
-        for (String str : set) {
-            if (str.startsWith(prefix)) {
-                if (matched != null) {
-                    // 如果已经找到一个匹配项，再找到一个，返回null
-                    return null;
-                }
-                matched = str;
-            }
-        }
 
-        if (matched == null) {
-            System.out.println("No commit with that id exists.");
-            System.exit(0);
-        }
-
-        return matched;
-    }
 }
 
