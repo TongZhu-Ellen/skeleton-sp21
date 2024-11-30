@@ -36,7 +36,8 @@ public class Repository {
     public static final File ADD_STAGE = join(GITLET_DIR, ".stage_for_addition");
     public static final File DEL_STAGE = join(GITLET_DIR, ".stage_for_deletion");
 
-    public static final File COMMITS = join(GITLET_DIR, "commits"); // this is a dir;
+    public static final File COMMITS = join(GITLET_DIR, "commits");
+
     public static final File HEAD = join(COMMITS, ".head");
     public static final File MASTER = join(COMMITS, ".master");
 
@@ -59,149 +60,8 @@ public class Repository {
         }
     }
 
-    static String shaOfHead() {
-        return readContentsAsString(HEAD);
-    }
-
-    static String shaOfMaster() {
-        return readContentsAsString(MASTER);
-    }
-
-    static File fileInCommitsDir(String sha) {
-        return join(COMMITS, sha);
-    }
 
 
-    static Commit getHeadCommit() {
-        File fileInCommitsDir = fileInCommitsDir(shaOfHead());
-        return readObject(fileInCommitsDir, Commit.class);
-    }
-
-
-    static String shaOfGivenFileInCommit(String fileName, Commit givenCommit) {
-        return givenCommit.files.getOrDefault(fileName, null);
-    }
-
-    static boolean fileChanged(String fileName, String newSha) {
-        String oldSha = shaOfGivenFileInCommit(fileName, getHeadCommit());
-        return !newSha.equals(oldSha);
-    }
-
-
-    static Set<String> fileNamesInAddStage() {
-        Set<String> relativePathsSet = new HashSet<>();
-        for (File file : ADD_STAGE.listFiles()) {
-            String relativePath = ADD_STAGE.toPath().relativize(file.toPath()).toString();
-            relativePathsSet.add(relativePath);  // 添加到 set，自动去重
-        }
-        return relativePathsSet;
-    }
-
-    static Set<String> shasInCommitsDir() {
-        Set<String> relativePathsSet = new HashSet<>();
-        for (File file : COMMITS.listFiles()) {
-            String relativePath = COMMITS.toPath().relativize(file.toPath()).toString();
-            relativePathsSet.add(relativePath);  // 添加到 set，自动去重
-        }
-        return relativePathsSet;
-    }
-
-
-    static Set<String> fileNamesInHead() {
-        return getHeadCommit().files.keySet();
-    }
-
-    static void putInBlobDir(byte[] content) {
-        String sha = sha1(content);
-        File file = join(BLOBS, sha);
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (Exception ignore) {
-
-            }
-            writeContents(file, content);
-        }
-    }
-
-
-    static void commit(String message) {
-        Commit head = getHeadCommit();
-        Commit newCommit = new Commit(message, shaOfHead());
-        Set<String> fileNamesInAddStage = fileNamesInAddStage();
-
-        Set<String> unchangedFiles = fileNamesInHead();
-        unchangedFiles.removeAll(fileNamesInAddStage);
-
-        for (String s : unchangedFiles) {
-            newCommit.files.put(s, head.files.get(s));
-        }
-
-        for (String s : fileNamesInAddStage) {
-            File fileInAddStage = join(ADD_STAGE, s);
-            byte[] content = readContents(fileInAddStage);
-            // 存储文件到 BLOBS 目录
-            putInBlobDir(content);
-            // 添加到 commit 文件映射
-            newCommit.files.put(s, sha1(content));
-        }
-        newCommit.save();
-        newCommit.headIt();
-        newCommit.masterIt();
-        clearDir(ADD_STAGE);
-
-    }
-
-    static void clearDir(File dir) {
-        for (File file : dir.listFiles()) {
-            file.delete(); // 删除目录下的文件
-        }
-    }
-
-
-    static void checkout(Commit certainCommit, String fileName) {
-        // find this file in certainCommit;
-        // find its blob;
-        // use this data to change that file in CWD;
-        if (!certainCommit.files.keySet().contains(fileName)) {
-            System.out.println("File does not exist in that commit.");
-            System.exit(0);
-        }
-        String sha = certainCommit.files.get(fileName);
-
-        File fileInBlobsDir = join(BLOBS, sha);
-        byte[] content = readContents(fileInBlobsDir);
-
-        File fileInCWD = join(CWD, fileName);
-        writeContents(fileInCWD, content);
-
-    }
-
-
-    static String findUniqueMatch(Set<String> set, String prefix) {
-        // 先找到所有与前缀匹配的提交 ID
-        List<String> matches = set.stream()
-                .filter(s -> s.startsWith(prefix))
-                .collect(Collectors.toList());
-
-        // 如果没有匹配项，抛出异常
-        if (matches.isEmpty()) {
-            throw new IllegalArgumentException("No commit with that id exists.");
-        }
-
-        // 如果找到一个匹配项，直接返回该项
-        if (matches.size() == 1) {
-            return matches.get(0);
-        }
-
-        // 如果匹配项不唯一，抛出异常
-        throw new IllegalArgumentException("Ambiguous prefix: " + prefix + " matches multiple ids: " + matches);
-    }
-
-    static Commit getCommitFromSha(String sha) {
-        File file = join(COMMITS, sha);
-        return readObject(file, Commit.class);
-    }
 
 
 

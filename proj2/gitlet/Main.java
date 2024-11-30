@@ -1,11 +1,11 @@
 package gitlet;
 
 import java.io.File;
-import java.io.IOException;
-import gitlet.Utils.*;
 
 import static gitlet.Repository.*;
 import static gitlet.Utils.*;
+import static gitlet.HeadOrMaster.*;
+
 
 import static gitlet.Repository.GITLET_DIR;
 
@@ -31,55 +31,44 @@ public class Main {
                 } else {
                     Repository.setDirs();
                     Commit initialCommit = new Commit("initial commit", null);
-                    initialCommit.save();
-                    initialCommit.headIt();
-                    initialCommit.masterIt();
+                    DirUtils.writeGivenObjInGivenDir(initialCommit, COMMITS);
+                    headIt(initialCommit);
+                    MasterIt(initialCommit);
                 }
                 break;
+
             case "add":
                 validArg(args, 2);
-                File targetFile = join(CWD, args[1]);
-                if (!targetFile.exists()) {
+                String fileName = args[1];
+                File curVersionFullPath = join(CWD, fileName);
+                if (!curVersionFullPath.exists()) {
                     System.out.println("File does not exist.");
                 } else {
-                    byte[] content = readContents(targetFile);
-                    String sha = sha1(content);
-                    if (Repository.fileChanged(args[1], sha)) {
-                        File fileInAddStage = join(ADD_STAGE, args[1]);
-                        if (!fileInAddStage.exists()) {
-                            try {
-                                fileInAddStage.createNewFile();
-                            } catch (Exception ignore) {
-                            }
-                            writeContents(fileInAddStage, content);
-                        }
+                    byte[] curContent = readContents(curVersionFullPath);
+                    String shaOfCurVersion = sha1(curContent);
+                    String shaOfPreVersion = getHeadCommit().findShaOfName(fileName);
+                    if (shaOfCurVersion.equals(shaOfPreVersion)) {
+                        DirUtils.tryRemoveGivenFileFromGivenDir(fileName, ADD_STAGE);
+                    } else {
+                        DirUtils.writeGivenContentInGivenDirWithName(curContent, ADD_STAGE, fileName);
                     }
+
                 }
                 break;
             case "commit":
-                if (ADD_STAGE.listFiles().length == 0) {
-                    System.out.println("No changes added to the commit.");
-                    System.exit(0);
-                }
-                if (args.length == 1) {
-                    System.out.println("Please enter a commit message.");
-                    System.exit(0);
-                }
                 validArg(args, 2);
-                Repository.commit(args[1]);
+                String message = args[1];
+
+
                 break;
 
             case "checkout":
-                if (args.length == 3) {
-                    Repository.checkout(getHeadCommit(), args[2]);
-                } else if (args.length == 4) {
-                    String completeSha = Repository.findUniqueMatch(shasInCommitsDir(), args[1]);
-                    Repository.checkout(Repository.getCommitFromSha(completeSha), args[3]);
-                }
+
+
                 break;
 
             case "log":
-                getHeadCommit().printLogFromThis();
+
 
         }
     }
