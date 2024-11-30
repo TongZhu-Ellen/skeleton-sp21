@@ -75,6 +75,7 @@ public class Main {
                         DirUtils.writeGivenContentInGivenDirWithName(content, BLOBS, sha);
                         newCommit.nameShaMap.put(name, sha);
                     }
+                    DirUtils.writeGivenObjInGivenDir(newCommit, COMMITS);
                     headIt(newCommit);
                     masterIt(newCommit);
                     DirUtils.clearDir(ADD_STAGE);
