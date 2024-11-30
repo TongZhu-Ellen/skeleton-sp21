@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static gitlet.HeadOrMaster.getHeadCommit;
 import static gitlet.Utils.*;
 
 // TODO: any imports you need here
@@ -58,6 +59,16 @@ public class Repository {
         } catch (Exception ignore) {
 
         }
+    }
+
+    static void checkOut(Commit goalCommit, String relPath) {
+        File fileInCWD = join(CWD, relPath);
+        String oldSha = goalCommit.tryFindShaOfGivenName(relPath);
+        if (oldSha == null) {
+            throw new GitletException("File does not exist in that commit.");
+        }
+        byte[] oldContent = DirUtils.readGivenFileInGivenDir(oldSha, BLOBS);
+        writeContents(fileInCWD, oldContent);
     }
 
 

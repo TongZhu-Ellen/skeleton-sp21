@@ -1,6 +1,7 @@
 package gitlet;
 
 import java.io.File;
+import java.util.Set;
 
 import static gitlet.Repository.*;
 import static gitlet.Utils.*;
@@ -65,11 +66,11 @@ public class Main {
                     String message = args[1];
                     Commit oldCommit = getHeadCommit();
                     Commit newCommit = new Commit(message, oldCommit.getParentSha());
-                    for (String name: oldCommit.nameShaMap.keySet()) {
+                    for (String name : oldCommit.nameShaMap.keySet()) {
                         String sha = oldCommit.nameShaMap.get(name);
                         newCommit.nameShaMap.put(name, sha);
                     }
-                    for (String name: DirUtils.helpFindRelPathSetInGivenDir(ADD_STAGE)) {
+                    for (String name : DirUtils.helpFindRelPathSetInGivenDir(ADD_STAGE)) {
                         byte[] content = DirUtils.readGivenFileInGivenDir(name, ADD_STAGE);
                         String sha = sha1(content);
                         DirUtils.writeGivenContentInGivenDirWithName(content, BLOBS, sha);
@@ -86,14 +87,12 @@ public class Main {
             case "checkout":
                 if (args.length == 3) {
                     String relPath = args[2];
-                    File fileInCWD = join(CWD, relPath);
-                    String oldSha = getHeadCommit().tryFindShaOfGivenName(relPath);
-                    if (oldSha == null) {
-                        System.out.println("File does not exist in that commit.");
-                        System.exit(0);
-                    }
-                    byte[] oldContent = DirUtils.readGivenFileInGivenDir(oldSha, BLOBS);
-                    writeContents(fileInCWD, oldContent);
+                    Repository.checkOut(getHeadCommit(), relPath);
+                } else if (args.length == 4) {
+                    String shortenedID = args[1];
+                    String commitSha = matchCommitId(DirUtils.helpFindRelPathSetInGivenDir(COMMITS), shortenedID);
+                    Commit goalCommit = (Commit) DirUtils.readGivenFileInGivenDir(commitSha, COMMITS, Commit.class);
+                    Repository.checkOut(goalCommit, args[3]);
                 }
 
 
@@ -105,15 +104,16 @@ public class Main {
                 break;
 
 
-
         }
-    }
 
-    public static void validArg(String[] args, int n) {
-        if (args.length != n) {
-            throw new RuntimeException("Invalid number of arguments");
+        public static void validArg (String[]args,int n){
+            if (args.length != n) {
+                throw new RuntimeException("Invalid number of arguments");
+            }
         }
-    }
+
+
+
 
 }
 
