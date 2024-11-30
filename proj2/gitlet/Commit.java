@@ -97,7 +97,6 @@ public class Commit implements Serializable {
         }
     }
 
-
     public String sha() {
         return sha1(serialize(this));
     }

@@ -65,7 +65,7 @@ public class Main {
                 } else {
                     String message = args[1];
                     Commit oldCommit = getHeadCommit();
-                    Commit newCommit = new Commit(message, oldCommit.getParentSha());
+                    Commit newCommit = new Commit(message, oldCommit.sha());
                     for (String name : oldCommit.nameShaMap.keySet()) {
                         String sha = oldCommit.nameShaMap.get(name);
                         newCommit.nameShaMap.put(name, sha);
