@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import static gitlet.Repository.BLOBS;
+import static gitlet.Repository.COMMITS;
 import static gitlet.Utils.*;
 
 
@@ -52,15 +52,18 @@ public class Commit implements Serializable {
 
 
 
-
-    // it will update sha if given name already exists in our nameShaMap;
-    void putFileIn(String fileName, byte[] content) {
-       this.nameShaMap.put(fileName, sha1(content));
+    String getParentSha() {
+        return this.parentSha;
     }
 
 
+
+
+
+
+
     // might return null;
-    String findShaOfName(String name) {
+    String tryFindShaOfGivenName(String name) {
         return this.nameShaMap.getOrDefault(name, null);
     }
 
@@ -87,7 +90,11 @@ public class Commit implements Serializable {
     }
 
     void printLogFromThis() {
-
+        this.printThisLog();
+        if (this.parentSha != null) {
+            Commit parentCommit = (Commit) DirUtils.readGivenFileInGivenDir(this.parentSha, COMMITS, Commit.class);
+            parentCommit.printLogFromThis();
+        }
     }
 
 

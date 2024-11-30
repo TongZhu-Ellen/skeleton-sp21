@@ -33,7 +33,7 @@ public class Main {
                     Commit initialCommit = new Commit("initial commit", null);
                     DirUtils.writeGivenObjInGivenDir(initialCommit, COMMITS);
                     headIt(initialCommit);
-                    MasterIt(initialCommit);
+                    masterIt(initialCommit);
                 }
                 break;
 
@@ -46,28 +46,63 @@ public class Main {
                 } else {
                     byte[] curContent = readContents(curVersionFullPath);
                     String shaOfCurVersion = sha1(curContent);
-                    String shaOfPreVersion = getHeadCommit().findShaOfName(fileName);
+                    String shaOfPreVersion = getHeadCommit().tryFindShaOfGivenName(fileName);
                     if (shaOfCurVersion.equals(shaOfPreVersion)) {
                         DirUtils.tryRemoveGivenFileFromGivenDir(fileName, ADD_STAGE);
                     } else {
                         DirUtils.writeGivenContentInGivenDirWithName(curContent, ADD_STAGE, fileName);
                     }
+                }
+                break;
+
+
+            case "commit":
+                if (ADD_STAGE.listFiles().length == 0) {
+                    System.out.println("No changes added to the commit.");
+                } else if (args.length == 1) {
+                    System.out.println("Please enter a commit message.");
+                } else {
+                    String message = args[1];
+                    Commit oldCommit = getHeadCommit();
+                    Commit newCommit = new Commit(message, oldCommit.getParentSha());
+                    for (String name: oldCommit.nameShaMap.keySet()) {
+                        String sha = oldCommit.nameShaMap.get(name);
+                        newCommit.nameShaMap.put(name, sha);
+                    }
+                    for (String name: DirUtils.helpFindRelPathSetInGivenDir(ADD_STAGE)) {
+                        byte[] content = DirUtils.readGivenFileInGivenDir(name, ADD_STAGE);
+                        String sha = sha1(content);
+                        DirUtils.writeGivenContentInGivenDirWithName(content, BLOBS, sha);
+                        newCommit.nameShaMap.put(name, sha);
+                    }
+                    headIt(newCommit);
+                    masterIt(newCommit);
+                    DirUtils.clearDir(ADD_STAGE);
 
                 }
                 break;
-            case "commit":
-                validArg(args, 2);
-                String message = args[1];
-
-
-                break;
 
             case "checkout":
+                if (args.length == 3) {
+                    String relPath = args[2];
+                    File fileInCWD = join(CWD, relPath);
+                    String oldSha = getHeadCommit().tryFindShaOfGivenName(relPath);
+                    if (oldSha == null) {
+                        System.out.println("File does not exist in that commit.");
+                        System.exit(0);
+                    }
+                    byte[] oldContent = DirUtils.readGivenFileInGivenDir(oldSha, BLOBS);
+                    writeContents(fileInCWD, oldContent);
+                }
 
 
                 break;
 
+
             case "log":
+                getHeadCommit().printLogFromThis();
+                break;
+
 
 
         }

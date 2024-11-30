@@ -24,7 +24,7 @@ public class HeadOrMaster {
         writeContents(HEAD, commit.sha());
     }
 
-    static void MasterIt(Commit commit) {
+    static void masterIt(Commit commit) {
         writeContents(MASTER, commit.sha());
     }
 
