@@ -9,9 +9,13 @@ import static gitlet.Utils.*;
 public class BranchUtils {
 
     static Commit getHeadCommit() {
-        String branchName = readContentsAsString(HEAD);
-        String shaOfBranch = (String) DirUtils.readGivenFileInGivenDir(branchName, BRANCHES, String.class);
+
+        String shaOfBranch = (String) DirUtils.readGivenFileInGivenDir(getHeadBranch(), BRANCHES, String.class);
         return (Commit) DirUtils.readGivenFileInGivenDir(shaOfBranch, COMMITS, Commit.class);
+    }
+
+    static String getHeadBranch() {
+        return readContentsAsString(HEAD);
     }
 
 
@@ -21,7 +25,7 @@ public class BranchUtils {
 
     static void updateBranch(String branchName, Commit commit) {
         File branchWholeAddress = join(BRANCHES, branchName);
-        if (branchWholeAddress.exists() && (!branchName.equals("master"))) {
+        if (branchWholeAddress.exists()) {
             throw new GitletException("A branch with that name already exists.");
         } else {
             try {

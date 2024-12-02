@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import static gitlet.Repository.BLOBS;
 import static gitlet.Repository.COMMITS;
 import static gitlet.Utils.*;
 
@@ -48,6 +49,11 @@ public class Commit implements Serializable {
             this.timeStamp = new Date();
         }
         this.nameShaMap = new HashMap<>();
+    }
+
+    byte[] getContent(String name) {
+        String sha = this.nameShaMap.get(name);
+        return DirUtils.readGivenFileInGivenDir(sha, BLOBS);
     }
 
 

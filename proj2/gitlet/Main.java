@@ -84,7 +84,7 @@ public class Main {
                         newCommit.nameShaMap.remove(name);
                     }
                     DirUtils.writeGivenObjInGivenDir(newCommit, COMMITS);
-                    // TODO: find branch, update head;
+                    BranchUtils.updateBranch(getHeadBranch(), newCommit);
                     DirUtils.clearDir(ADD_STAGE);
                     DelSet.clear();
 
@@ -100,6 +100,37 @@ public class Main {
                     String commitSha = matchCommitId(DirUtils.helpFindRelPathSetInGivenDir(COMMITS), shortenedID);
                     Commit goalCommit = (Commit) DirUtils.readGivenFileInGivenDir(commitSha, COMMITS, Commit.class);
                     checkOut(goalCommit, args[3]);
+                } else {
+                    validArg(args, 2);
+                    String branchName = args[1];
+                    File givenBranchFullPath = join(BRANCHES, branchName);
+                    if (!givenBranchFullPath.exists()) {
+                        System.out.println("No such branch exists.");
+                    } else if (branchName.equals(getHeadBranch())) {
+                        System.out.println("No need to checkout the current branch.");
+                    } else {
+                        Set<String> filesInCWD = DirUtils.helpFindRelPathSetInGivenDir(CWD);
+                        Set<String> filesInHead = getHeadCommit().nameShaMap.keySet();
+                        filesInCWD.removeAll(filesInHead);
+                        if (!filesInCWD.isEmpty()) {
+                            System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                            break;
+                        }
+                        Commit branchHeadCommit = BranchUtils.findBranch(branchName);
+                        for (String name: filesInHead) {
+                            byte[] fileContent = branchHeadCommit.getContent(name);
+                            DirUtils.writeGivenContentInGivenDirWithName(fileContent, CWD, name);
+                        }
+                        headThisBranch(branchName);
+                        for (String name: filesInCWD) {
+                            join(CWD, name).delete();
+                        }
+                        DirUtils.clearDir(ADD_STAGE);
+                        DelSet.clear();
+
+
+
+                    }
                 }
 
                 break;
@@ -131,6 +162,18 @@ public class Main {
             case "branch":
                 validArg(args, 2);
                 BranchUtils.updateBranch(args[1], getHeadCommit());
+
+                break;
+
+            case "rm-branch":
+                validArg(args, 2);
+                if (args[1].equals(getHeadBranch())) {
+                    System.out.println("Cannot remove the current branch.");
+
+                }
+                if (!DirUtils.tryRemoveGivenFileFromGivenDir(args[1], BRANCHES)) {
+                    System.out.println("A branch with that name does not exist.");
+                }
 
                 break;
 
