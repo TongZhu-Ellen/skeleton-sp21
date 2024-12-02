@@ -10,8 +10,8 @@ public class BranchUtils {
 
     static Commit getHeadCommit() {
         String branchName = readContentsAsString(HEAD);
-        Commit branchCommit = (Commit) DirUtils.readGivenFileInGivenDir(branchName, BRANCHES, Commit.class);
-        return branchCommit;
+        String shaOfBranch = (String) DirUtils.readGivenFileInGivenDir(branchName, BRANCHES, String.class);
+        return (Commit) DirUtils.readGivenFileInGivenDir(shaOfBranch, COMMITS, Commit.class);
     }
 
 
