@@ -1,6 +1,7 @@
 package gitlet;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.Set;
 
 import static gitlet.Repository.*;
@@ -30,7 +31,7 @@ public class Main {
                 if (GITLET_DIR.exists()) {
                     System.out.println("A Gitlet version-control system already exists in the current directory.");
                 } else {
-                    Repository.setDirs();
+                    setDirs();
                     Commit initialCommit = new Commit("initial commit", null);
                     DirUtils.writeGivenObjInGivenDir(initialCommit, COMMITS);
                     headIt(initialCommit);
@@ -50,10 +51,13 @@ public class Main {
                     String shaOfPreVersion = getHeadCommit().tryFindShaOfGivenName(fileName);
                     if (shaOfCurVersion.equals(shaOfPreVersion)) {
                         DirUtils.tryRemoveGivenFileFromGivenDir(fileName, ADD_STAGE);
+                        DelSet.remove(fileName);
+
                     } else {
                         DirUtils.writeGivenContentInGivenDirWithName(curContent, ADD_STAGE, fileName);
                     }
                 }
+
                 break;
 
 
@@ -76,10 +80,14 @@ public class Main {
                         DirUtils.writeGivenContentInGivenDirWithName(content, BLOBS, sha);
                         newCommit.nameShaMap.put(name, sha);
                     }
+                    for (String name: DelSet.getSet()) {
+                        newCommit.nameShaMap.remove(name);
+                    }
                     DirUtils.writeGivenObjInGivenDir(newCommit, COMMITS);
                     headIt(newCommit);
                     masterIt(newCommit);
                     DirUtils.clearDir(ADD_STAGE);
+                    DelSet.clear();
 
                 }
                 break;
@@ -87,12 +95,12 @@ public class Main {
             case "checkout":
                 if (args.length == 3) {
                     String relPath = args[2];
-                    Repository.checkOut(getHeadCommit(), relPath);
+                    checkOut(getHeadCommit(), relPath);
                 } else if (args.length == 4) {
                     String shortenedID = args[1];
                     String commitSha = matchCommitId(DirUtils.helpFindRelPathSetInGivenDir(COMMITS), shortenedID);
                     Commit goalCommit = (Commit) DirUtils.readGivenFileInGivenDir(commitSha, COMMITS, Commit.class);
-                    Repository.checkOut(goalCommit, args[3]);
+                    checkOut(goalCommit, args[3]);
                 }
 
                 break;
@@ -100,6 +108,27 @@ public class Main {
 
             case "log":
                 getHeadCommit().printLogFromThis();
+                break;
+
+            case "rm":
+                validArg(args, 2);
+                int actionCount = 0;
+                String name = args[2];
+                File nameInCWD = join(CWD, name);
+
+                if (DirUtils.tryRemoveGivenFileFromGivenDir(name, ADD_STAGE)) {
+                    actionCount += 1;
+                }
+                if (getHeadCommit().tryFindShaOfGivenName(name) != null) {
+                    DelSet.add(name);
+                    nameInCWD.delete();
+                    actionCount += 1;
+                }
+
+                if (actionCount == 0) {
+                    System.out.println("No reason to remove the file.");
+                }
+
                 break;
 
         }

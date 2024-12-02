@@ -1,11 +1,8 @@
 package gitlet;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashSet;
 
-import static gitlet.HeadOrMaster.getHeadCommit;
 import static gitlet.Utils.*;
 
 // TODO: any imports you need here
@@ -35,7 +32,7 @@ public class Repository {
     public static final File GITLET_DIR = join(CWD, ".gitlet");
 
     public static final File ADD_STAGE = join(GITLET_DIR, ".stage_for_addition");
-    public static final File DEL_STAGE = join(GITLET_DIR, ".stage_for_deletion");
+    public static final File DEL_SET = join(GITLET_DIR, ".stage_for_deletion");
 
     public static final File COMMITS = join(GITLET_DIR, "commits");
 
@@ -55,7 +52,8 @@ public class Repository {
             MASTER.createNewFile();
             BLOBS.mkdir();
             ADD_STAGE.mkdir();
-            DEL_STAGE.mkdir();
+            DEL_SET.createNewFile();
+            writeObject(DEL_SET, new HashSet<String>());
         } catch (Exception ignore) {
 
         }

@@ -52,9 +52,7 @@ public class Commit implements Serializable {
 
 
 
-    String getParentSha() {
-        return this.parentSha;
-    }
+
 
 
 

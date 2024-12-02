@@ -51,9 +51,14 @@ public class DirUtils {
 
 
 
-    static void tryRemoveGivenFileFromGivenDir(String relPath, File dir) {
+    static boolean tryRemoveGivenFileFromGivenDir(String relPath, File dir) {
         File fullPath = join(dir, relPath);
-        fullPath.delete();
+        if (fullPath.exists()) {
+            fullPath.delete();
+            return true;
+        } else {
+            return false;
+        }
     }
 
 
