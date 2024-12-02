@@ -10,7 +10,7 @@ public class BranchUtils {
 
     static Commit getHeadCommit() {
 
-        String shaOfBranch = (String) DirUtils.readGivenFileInGivenDir(getHeadBranch(), BRANCHES, String.class);
+        String shaOfBranch = readContentsAsString(join(BRANCHES, getHeadBranch()));
         return (Commit) DirUtils.readGivenFileInGivenDir(shaOfBranch, COMMITS, Commit.class);
     }
 
@@ -38,7 +38,7 @@ public class BranchUtils {
     }
 
     static Commit findBranch(String branchName) {
-        String shaOfCommit = (String) DirUtils.readGivenFileInGivenDir(branchName, BRANCHES, String.class);
+        String shaOfCommit = readContentsAsString(join(BRANCHES, branchName));
         return (Commit) DirUtils.readGivenFileInGivenDir(shaOfCommit, COMMITS, Commit.class);
     }
 
