@@ -70,13 +70,6 @@ public class Commit implements Serializable {
 
 
 
-
-
-
-
-
-
-
     void printThisLog() {
         System.out.println("===");
         System.out.println("commit " + sha1(serialize(this)));

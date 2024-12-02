@@ -1,12 +1,12 @@
 package gitlet;
 
 import java.io.File;
-import java.util.HashSet;
+
 import java.util.Set;
 
 import static gitlet.Repository.*;
 import static gitlet.Utils.*;
-import static gitlet.HeadOrMaster.*;
+import static gitlet.BranchUtils.*;
 
 
 import static gitlet.Repository.GITLET_DIR;
@@ -34,8 +34,8 @@ public class Main {
                     setDirs();
                     Commit initialCommit = new Commit("initial commit", null);
                     DirUtils.writeGivenObjInGivenDir(initialCommit, COMMITS);
-                    headIt(initialCommit);
-                    masterIt(initialCommit);
+                    BranchUtils.updateBranch("master", initialCommit);
+                    headThisBranch("master");
                 }
                 break;
 
@@ -84,8 +84,7 @@ public class Main {
                         newCommit.nameShaMap.remove(name);
                     }
                     DirUtils.writeGivenObjInGivenDir(newCommit, COMMITS);
-                    headIt(newCommit);
-                    masterIt(newCommit);
+                    // TODO: find branch, update head;
                     DirUtils.clearDir(ADD_STAGE);
                     DelSet.clear();
 
@@ -124,10 +123,14 @@ public class Main {
                     nameInCWD.delete();
                     actionCount += 1;
                 }
-
                 if (actionCount == 0) {
                     System.out.println("No reason to remove the file.");
                 }
+                break;
+
+            case "branch":
+                validArg(args, 2);
+                BranchUtils.updateBranch(args[1], getHeadCommit());
 
                 break;
 
@@ -162,5 +165,6 @@ public class Main {
 
         }
 }
+
 
 

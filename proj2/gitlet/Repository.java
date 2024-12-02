@@ -31,13 +31,17 @@ public class Repository {
      */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
 
+
     public static final File ADD_STAGE = join(GITLET_DIR, ".stage_for_addition");
     public static final File DEL_SET = join(GITLET_DIR, ".stage_for_deletion");
 
     public static final File COMMITS = join(GITLET_DIR, "commits");
 
-    public static final File HEAD = join(COMMITS, ".head");
-    public static final File MASTER = join(COMMITS, ".master");
+
+    public static final File BRANCHES = join(GITLET_DIR, ".branches");
+    public static final File HEAD = join(GITLET_DIR, "head");
+
+
 
     public static final File BLOBS = join(GITLET_DIR, "blobs"); // this is a dir;
 
@@ -49,7 +53,7 @@ public class Repository {
             GITLET_DIR.mkdir();
             COMMITS.mkdir();
             HEAD.createNewFile();
-            MASTER.createNewFile();
+            BRANCHES.mkdir();
             BLOBS.mkdir();
             ADD_STAGE.mkdir();
             DEL_SET.createNewFile();
