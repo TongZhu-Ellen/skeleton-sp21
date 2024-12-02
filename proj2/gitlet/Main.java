@@ -34,7 +34,7 @@ public class Main {
                     setDirs();
                     Commit initialCommit = new Commit("initial commit", null);
                     DirUtils.writeGivenObjInGivenDir(initialCommit, COMMITS);
-                    BranchUtils.updateBranch("master", initialCommit);
+                    BranchUtils.makeBranch("master", initialCommit);
                     headThisBranch("master");
                 }
                 break;
@@ -161,7 +161,7 @@ public class Main {
 
             case "branch":
                 validArg(args, 2);
-                BranchUtils.updateBranch(args[1], getHeadCommit());
+                BranchUtils.makeBranch(args[1], getHeadCommit());
 
                 break;
 

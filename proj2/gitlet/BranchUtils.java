@@ -23,7 +23,7 @@ public class BranchUtils {
         writeContents(HEAD, branchName);
     }
 
-    static void updateBranch(String branchName, Commit commit) {
+    static void makeBranch(String branchName, Commit commit) {
         File branchWholeAddress = join(BRANCHES, branchName);
         if (branchWholeAddress.exists()) {
             throw new GitletException("A branch with that name already exists.");
@@ -33,8 +33,14 @@ public class BranchUtils {
             } catch (Exception ignore) {
 
             }
+            writeContents(branchWholeAddress, commit.sha());
         }
+    }
+
+    static void updateBranch(String branchName, Commit commit) {
+        File branchWholeAddress = join(BRANCHES, branchName);
         writeContents(branchWholeAddress, commit.sha());
+
     }
 
     static Commit findBranch(String branchName) {
