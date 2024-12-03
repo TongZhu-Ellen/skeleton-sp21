@@ -33,13 +33,13 @@ public class Repository {
     public static final File GITLET_DIR = join(CWD, ".gitlet");
 
 
-    public static final File ADD_STAGE = join(GITLET_DIR, ".stage_for_addition");
-    public static final File DEL_SET = join(GITLET_DIR, ".stage_for_deletion");
+    public static final File ADD_STAGE = join(GITLET_DIR, "stage_for_addition");
+    public static final File DEL_SET = join(GITLET_DIR, "stage_for_deletion");
 
     public static final File COMMITS = join(GITLET_DIR, "commits");
 
 
-    public static final File BRANCHES = join(GITLET_DIR, ".branches");
+    public static final File BRANCHES = join(GITLET_DIR, "branches");
     public static final File HEAD = join(GITLET_DIR, "head");
 
 
@@ -77,16 +77,36 @@ public class Repository {
 
 
     static void helpCheckout(Commit commit) {
-        Set<String> fileNameInCWD = DirUtils.helpFindRelPathSetInGivenDir(CWD);
-        Set<String> fileNameInCommit = commit.nameShaMap.keySet();
-        fileNameInCWD.removeAll(fileNameInCommit);
-        if (fileNameInCWD.isEmpty()) {
+        Set<String> filesInCWD = DirUtils.helpFindRelPathSetInGivenDir(CWD);
+        Set<String> filesInCommit = commit.nameShaMap.keySet();
+        Set<String> untracked = new HashSet<>(filesInCWD);
+        untracked.removeAll(filesInCommit);
+        if (!untracked.isEmpty()) {
             throw new GitletException("There is an untracked file in the way; delete it, or add and commit it first.");
         }
-        for (String name: fileNameInCWD) {
-            byte[] content = commit.getContent(name);
-            writeContents(join(CWD, name), content);
+        for (String name: filesInCommit) {
+            String sha = commit.nameShaMap.get(name);
+            byte[] content = readContents(join(BLOBS, sha));
+            if (!filesInCWD.contains(name)) {
+                try {
+                    join(CWD, name).createNewFile();
+                } catch (Exception ignore) {
+
+                }
+            }
+            DirUtils.writeGivenContentInGivenDirWithName(content, CWD, name);
         }
+        Set<String> filesInHeadButNotCommit = DirUtils.helpFindRelPathSetInGivenDir(HEAD);
+        filesInHeadButNotCommit.removeAll(filesInCommit);
+        Commit head = BranchUtils.getHeadCommit();
+        for (String name: filesInHeadButNotCommit) {
+            head.nameShaMap.remove(name);
+        }
+
+        BranchUtils.makeBranch(BranchUtils.getHeadBranch(), commit);
+        DirUtils.clearDir(ADD_STAGE);
+        DelSet.clear();
+
     }
 
 

@@ -67,12 +67,12 @@ public class Main {
                     break;
                 }
                 validArg(args, 2);
-                String msg = args[1];
-                if (msg.isEmpty()) {
+
+                if (args[1].isEmpty()) {
                     System.out.println("Please enter a commit message.");
                     break;
                 } else {
-                    String message = msg;
+                    String message = args[1];
                     Commit oldCommit = getHeadCommit();
                     Commit newCommit = new Commit(message, oldCommit.sha());
                     for (String name : oldCommit.nameShaMap.keySet()) {
@@ -118,9 +118,6 @@ public class Main {
                     }
                     Commit commit = BranchUtils.findBranch(branchName);
                     Repository.helpCheckout(commit);
-                    BranchUtils.headThisBranch(branchName);
-                    DirUtils.clearDir(ADD_STAGE);
-                    DelSet.clear();
 
                 }
 
@@ -134,9 +131,7 @@ public class Main {
                 String commitId = matchCommitId(DirUtils.helpFindRelPathSetInGivenDir(COMMITS), shortenedCommitID);
                 Commit commit = (Commit) DirUtils.readGivenFileInGivenDir(commitId, COMMITS, Commit.class);
                 Repository.helpCheckout(commit);
-                BranchUtils.updateBranch(getHeadBranch(), commit);
-                DirUtils.clearDir(ADD_STAGE);
-                DelSet.clear();
+
                 break;
 
 

@@ -35,8 +35,6 @@ public class DirUtils {
     }
 
 
-
-
     static byte[] readGivenFileInGivenDir(String relPath, File dir) {
         File fullPath = join(dir, relPath);
         return readContents(fullPath);
@@ -46,9 +44,6 @@ public class DirUtils {
         File fullPath = join(dir, relPath);
         return readObject(fullPath, objectType);
     }
-
-
-
 
 
     static boolean tryRemoveGivenFileFromGivenDir(String relPath, File dir) {
@@ -62,13 +57,13 @@ public class DirUtils {
     }
 
 
-
-
     static void clearDir(File dir) {
         for (File file : dir.listFiles()) {
-            file.delete(); // 删除目录下的文件
+            file.delete();
         }
+
     }
+
 
 
 
