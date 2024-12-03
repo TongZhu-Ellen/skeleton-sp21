@@ -177,6 +177,25 @@ public class Main {
 
                 break;
 
+            case "status":
+                validArg(args, 1);
+                System.out.println("=== Branches ===");
+                BranchUtils.printHeadBranch();
+                BranchUtils.printOtherBranch();
+                System.out.println("");
+
+                System.out.println("=== Staged Files ===");
+                for (String stagedFile: DirUtils.helpFindRelPathSetInGivenDir(ADD_STAGE)) {
+                    System.out.println(stagedFile);
+                }
+                System.out.println("");
+
+                System.out.println("=== Removed Files ===");
+                for (String toBeDelFile: DelSet.getSet()) {
+                    System.out.println(toBeDelFile);
+                }
+                System.out.println("");
+
         }
     }
 

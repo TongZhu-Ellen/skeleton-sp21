@@ -2,6 +2,7 @@ package gitlet;
 
 
 import java.io.File;
+import java.util.Set;
 
 import static gitlet.Repository.*;
 import static gitlet.Utils.*;
@@ -46,6 +47,18 @@ public class BranchUtils {
     static Commit findBranch(String branchName) {
         String shaOfCommit = readContentsAsString(join(BRANCHES, branchName));
         return (Commit) DirUtils.readGivenFileInGivenDir(shaOfCommit, COMMITS, Commit.class);
+    }
+
+    static void printHeadBranch() {
+        System.out.println("*" + getHeadBranch());
+    }
+
+    static void printOtherBranch() {
+        Set<String> branchNames = DirUtils.helpFindRelPathSetInGivenDir(BRANCHES);
+        branchNames.remove(getHeadBranch());
+        for (String name: branchNames) {
+            System.out.println(name);
+        }
     }
 
 
