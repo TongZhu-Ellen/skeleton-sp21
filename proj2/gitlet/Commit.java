@@ -56,6 +56,10 @@ public class Commit implements Serializable {
         return DirUtils.readGivenFileInGivenDir(sha, BLOBS);
     }
 
+    String getMessage() {
+        return this.message;
+    }
+
 
 
 

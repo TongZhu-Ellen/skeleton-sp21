@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 
+import java.util.Arrays;
 import java.util.Set;
 
 import static gitlet.Repository.*;
@@ -80,7 +81,7 @@ public class Main {
                         DirUtils.writeGivenContentInGivenDirWithName(content, BLOBS, sha);
                         newCommit.nameShaMap.put(name, sha);
                     }
-                    for (String name: DelSet.getSet()) {
+                    for (String name : DelSet.getSet()) {
                         newCommit.nameShaMap.remove(name);
                     }
                     DirUtils.writeGivenObjInGivenDir(newCommit, COMMITS);
@@ -117,17 +118,16 @@ public class Main {
                             break;
                         }
                         Commit branchHeadCommit = BranchUtils.findBranch(branchName);
-                        for (String name: filesInHead) {
+                        for (String name : filesInHead) {
                             byte[] fileContent = branchHeadCommit.getContent(name);
                             DirUtils.writeGivenContentInGivenDirWithName(fileContent, CWD, name);
                         }
                         headThisBranch(branchName);
-                        for (String name: filesInCWD) {
+                        for (String name : filesInCWD) {
                             join(CWD, name).delete();
                         }
                         DirUtils.clearDir(ADD_STAGE);
                         DelSet.clear();
-
 
 
                     }
@@ -185,13 +185,13 @@ public class Main {
                 System.out.println("");
 
                 System.out.println("=== Staged Files ===");
-                for (String stagedFile: DirUtils.helpFindRelPathSetInGivenDir(ADD_STAGE)) {
+                for (String stagedFile : DirUtils.helpFindRelPathSetInGivenDir(ADD_STAGE)) {
                     System.out.println(stagedFile);
                 }
                 System.out.println("");
 
                 System.out.println("=== Removed Files ===");
-                for (String toBeDelFile: DelSet.getSet()) {
+                for (String toBeDelFile : DelSet.getSet()) {
                     System.out.println(toBeDelFile);
                 }
                 System.out.println("");
@@ -202,11 +202,36 @@ public class Main {
                 System.out.println("=== Untracked Files ===");
                 System.out.println("");
 
+                break;
+
+            case "global-log":
+                for (String commitRelPath : DirUtils.helpFindRelPathSetInGivenDir(COMMITS)) {
+                    Commit commit = (Commit) DirUtils.readGivenFileInGivenDir(commitRelPath, COMMITS, Commit.class);
+                    commit.printThisLog();
+                }
+                break;
+
+            case "find":
+                String[] messageArgs = Arrays.copyOfRange(args, 1, args.length);
+                String searchedMessage = String.join(" ", messageArgs).trim();
+                int matchedCount = 0;
+                for (String commitRelPath : DirUtils.helpFindRelPathSetInGivenDir(COMMITS)) {
+                    Commit commit = (Commit) DirUtils.readGivenFileInGivenDir(commitRelPath, COMMITS, Commit.class);
+                    String commitMsg = commit.getMessage();
+                    if (commitMsg.contains(searchedMessage)) {
+                        System.out.println(commit.sha());
+                        matchedCount += 1;
+                    }
+                }
+                if (matchedCount == 0) {
+                    System.out.println("Found no commit with that message.");
+                }
+
+                break;
 
 
         }
     }
-
 
         public static void validArg (String[]args,int n){
             if (args.length != n) {
@@ -214,7 +239,7 @@ public class Main {
             }
         }
 
-        static String matchCommitId (Set < String > set, String prefix) {
+        static String matchCommitId (Set < String > set, String prefix){
             String matched = null;
             for (String str : set) {
                 if (str.startsWith(prefix)) {
@@ -234,7 +259,8 @@ public class Main {
             return matched;
 
         }
-}
+    }
+
 
 
 
