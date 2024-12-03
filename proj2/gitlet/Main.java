@@ -210,8 +210,8 @@ public class Main {
 
             case "global-log":
                 for (String commitRelPath : DirUtils.helpFindRelPathSetInGivenDir(COMMITS)) {
-                    Commit commit = (Commit) DirUtils.readGivenFileInGivenDir(commitRelPath, COMMITS, Commit.class);
-                    commit.printThisLog();
+                    Commit curCommit = (Commit) DirUtils.readGivenFileInGivenDir(commitRelPath, COMMITS, Commit.class);
+                    curCommit.printThisLog();
                 }
                 break;
 
@@ -220,10 +220,10 @@ public class Main {
                 String searchedMessage = args[1];
                 int matchedCount = 0;
                 for (String commitRelPath : DirUtils.helpFindRelPathSetInGivenDir(COMMITS)) {
-                    Commit commit = (Commit) DirUtils.readGivenFileInGivenDir(commitRelPath, COMMITS, Commit.class);
-                    String commitMsg = commit.getMessage();
+                    Commit targetCommit = (Commit) DirUtils.readGivenFileInGivenDir(commitRelPath, COMMITS, Commit.class);
+                    String commitMsg = targetCommit.getMessage();
                     if (commitMsg.contains(searchedMessage)) {
-                        System.out.println(commit.sha());
+                        System.out.println(targetCommit.sha());
                         matchedCount += 1;
                     }
                 }
