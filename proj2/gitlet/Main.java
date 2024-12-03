@@ -35,7 +35,7 @@ public class Main {
                     setDirs();
                     Commit initialCommit = new Commit("initial commit", null);
                     DirUtils.writeGivenObjInGivenDir(initialCommit, COMMITS);
-                    BranchUtils.makeBranch("master", initialCommit);
+                    makeBranch("master", initialCommit);
                     headThisBranch("master");
                 }
                 break;
@@ -65,10 +65,15 @@ public class Main {
             case "commit":
                 if (ADD_STAGE.listFiles().length == 0) {
                     System.out.println("No changes added to the commit.");
-                } else if (args.length == 1) {
+                    break;
+                }
+                validArg(args, 2);
+                String msg = args[1];
+                if (msg.isEmpty()) {
                     System.out.println("Please enter a commit message.");
+                    break;
                 } else {
-                    String message = args[1];
+                    String message = msg;
                     Commit oldCommit = getHeadCommit();
                     Commit newCommit = new Commit(message, oldCommit.sha());
                     for (String name : oldCommit.nameShaMap.keySet()) {
@@ -85,7 +90,7 @@ public class Main {
                         newCommit.nameShaMap.remove(name);
                     }
                     DirUtils.writeGivenObjInGivenDir(newCommit, COMMITS);
-                    BranchUtils.updateBranch(getHeadBranch(), newCommit);
+                    updateBranch(getHeadBranch(), newCommit);
                     DirUtils.clearDir(ADD_STAGE);
                     DelSet.clear();
 
@@ -107,31 +112,27 @@ public class Main {
                     File givenBranchFullPath = join(BRANCHES, branchName);
                     if (!givenBranchFullPath.exists()) {
                         System.out.println("No such branch exists.");
+                        break;
                     } else if (branchName.equals(getHeadBranch())) {
                         System.out.println("No need to checkout the current branch.");
-                    } else {
-                        Set<String> filesInCWD = DirUtils.helpFindRelPathSetInGivenDir(CWD);
-                        Set<String> filesInHead = getHeadCommit().nameShaMap.keySet();
-                        filesInCWD.removeAll(filesInHead);
-                        if (!filesInCWD.isEmpty()) {
-                            System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
-                            break;
-                        }
-                        Commit branchHeadCommit = BranchUtils.findBranch(branchName);
-                        for (String name : filesInHead) {
-                            byte[] fileContent = branchHeadCommit.getContent(name);
-                            DirUtils.writeGivenContentInGivenDirWithName(fileContent, CWD, name);
-                        }
-                        headThisBranch(branchName);
-                        for (String name : filesInCWD) {
-                            join(CWD, name).delete();
-                        }
-                        DirUtils.clearDir(ADD_STAGE);
-                        DelSet.clear();
-
-
+                        break;
                     }
+
+                    // TODO:
                 }
+
+
+                break;
+
+
+            case "reset":
+                validArg(args, 2);
+                String shortenedCommitID = args[1];
+                String commitId = matchCommitId(DirUtils.helpFindRelPathSetInGivenDir(COMMITS), shortenedCommitID);
+                // TODO
+
+
+
 
                 break;
 
@@ -161,7 +162,7 @@ public class Main {
 
             case "branch":
                 validArg(args, 2);
-                BranchUtils.makeBranch(args[1], getHeadCommit());
+                makeBranch(args[1], getHeadCommit());
 
                 break;
 
@@ -180,8 +181,8 @@ public class Main {
             case "status":
                 validArg(args, 1);
                 System.out.println("=== Branches ===");
-                BranchUtils.printHeadBranch();
-                BranchUtils.printOtherBranch();
+                printHeadBranch();
+                printOtherBranch();
                 System.out.println("");
 
                 System.out.println("=== Staged Files ===");
@@ -212,8 +213,8 @@ public class Main {
                 break;
 
             case "find":
-                String[] messageArgs = Arrays.copyOfRange(args, 1, args.length);
-                String searchedMessage = String.join(" ", messageArgs).trim();
+                validArg(args, 2);
+                String searchedMessage = args[1];
                 int matchedCount = 0;
                 for (String commitRelPath : DirUtils.helpFindRelPathSetInGivenDir(COMMITS)) {
                     Commit commit = (Commit) DirUtils.readGivenFileInGivenDir(commitRelPath, COMMITS, Commit.class);
@@ -233,7 +234,8 @@ public class Main {
         }
     }
 
-        public static void validArg (String[]args,int n){
+
+        static void validArg (String[]args,int n){
             if (args.length != n) {
                 throw new RuntimeException("Invalid number of arguments");
             }
@@ -259,7 +261,10 @@ public class Main {
             return matched;
 
         }
-    }
+
+
+}
+
 
 
 
