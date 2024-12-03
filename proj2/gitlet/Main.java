@@ -143,7 +143,7 @@ public class Main {
             case "rm":
                 validArg(args, 2);
                 int actionCount = 0;
-                String name = args[2];
+                String name = args[1];
                 File nameInCWD = join(CWD, name);
 
                 if (DirUtils.tryRemoveGivenFileFromGivenDir(name, ADD_STAGE)) {
