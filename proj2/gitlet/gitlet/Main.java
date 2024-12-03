@@ -2,7 +2,6 @@ package gitlet;
 
 import java.io.File;
 
-import java.util.Arrays;
 import java.util.Set;
 
 import static gitlet.Repository.*;
@@ -42,7 +41,7 @@ public class Main {
 
             case "add":
                 validArg(args, 2);
-                String fileName = concate(args);
+                String fileName = args[1];
                 File curVersionFullPath = join(CWD, fileName);
                 if (!curVersionFullPath.exists()) {
                     System.out.println("File does not exist.");
@@ -67,9 +66,11 @@ public class Main {
                     System.out.println("No changes added to the commit.");
                     break;
                 }
-                String msg = concate(args)
+                validArg(args, 2);
+                String msg = args[1];
                 if (msg.isEmpty()) {
                     System.out.println("Please enter a commit message.");
+                    break;
                 } else {
                     String message = msg;
                     Commit oldCommit = getHeadCommit();
@@ -106,35 +107,26 @@ public class Main {
                     checkOut(goalCommit, args[3]);
                 } else {
                     validArg(args, 2);
-                    String branchName = concate(args);
+                    String branchName = args[1];
                     File givenBranchFullPath = join(BRANCHES, branchName);
                     if (!givenBranchFullPath.exists()) {
                         System.out.println("No such branch exists.");
+                        break;
                     } else if (branchName.equals(getHeadBranch())) {
                         System.out.println("No need to checkout the current branch.");
-                    } else {
-                        Set<String> filesInCWD = DirUtils.helpFindRelPathSetInGivenDir(CWD);
-                        Set<String> filesInHead = getHeadCommit().nameShaMap.keySet();
-                        filesInCWD.removeAll(filesInHead);
-                        if (!filesInCWD.isEmpty()) {
-                            System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
-                            break;
-                        }
-                        Commit branchHeadCommit = findBranch(branchName);
-                        for (String name : filesInHead) {
-                            byte[] fileContent = branchHeadCommit.getContent(name);
-                            DirUtils.writeGivenContentInGivenDirWithName(fileContent, CWD, name);
-                        }
-                        headThisBranch(branchName);
-                        for (String name : filesInCWD) {
-                            join(CWD, name).delete();
-                        }
-                        DirUtils.clearDir(ADD_STAGE);
-                        DelSet.clear();
-
-
+                        break;
                     }
+                    Commit commit = BranchUtils.findBranch(branchName);
+                    Repository.helpCheckout(commit);
+
+
+
+
+                    DirUtils.clearDir(ADD_STAGE);
+                    DelSet.clear();
+
                 }
+
 
                 break;
 
@@ -143,20 +135,12 @@ public class Main {
                 validArg(args, 2);
                 String shortenedCommitID = args[1];
                 String commitId = matchCommitId(DirUtils.helpFindRelPathSetInGivenDir(COMMITS), shortenedCommitID);
-                Set<String> filesInCWD = DirUtils.helpFindRelPathSetInGivenDir(CWD);
-                Commit goalCommit = (Commit) DirUtils.readGivenFileInGivenDir(commitId, COMMITS, Commit.class);
-                Set<String> filesInReset = goalCommit.nameShaMap.keySet();
-                filesInCWD.removeAll(filesInReset);
-                if (!filesInCWD.isEmpty()) {
-                    System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
-                    break;
-                }
-                // TODO:
+                Commit commit = (Commit) DirUtils.readGivenFileInGivenDir(commitId, COMMITS, Commit.class);
+                Repository.helpCheckout(commit);
 
 
-
-
-
+                DirUtils.clearDir(ADD_STAGE);
+                DelSet.clear();
                 break;
 
 
@@ -167,7 +151,7 @@ public class Main {
             case "rm":
                 validArg(args, 2);
                 int actionCount = 0;
-                String name = concate(args);
+                String name = args[1];
                 File nameInCWD = join(CWD, name);
 
                 if (DirUtils.tryRemoveGivenFileFromGivenDir(name, ADD_STAGE)) {
@@ -185,13 +169,13 @@ public class Main {
 
             case "branch":
                 validArg(args, 2);
-                makeBranch(concate(args), getHeadCommit());
+                makeBranch(args[1], getHeadCommit());
 
                 break;
 
             case "rm-branch":
                 validArg(args, 2);
-                if (concate(args).equals(getHeadBranch())) {
+                if (args[1].equals(getHeadBranch())) {
                     System.out.println("Cannot remove the current branch.");
 
                 }
@@ -230,19 +214,20 @@ public class Main {
 
             case "global-log":
                 for (String commitRelPath : DirUtils.helpFindRelPathSetInGivenDir(COMMITS)) {
-                    Commit commit = (Commit) DirUtils.readGivenFileInGivenDir(commitRelPath, COMMITS, Commit.class);
-                    commit.printThisLog();
+                    Commit curCommit = (Commit) DirUtils.readGivenFileInGivenDir(commitRelPath, COMMITS, Commit.class);
+                    curCommit.printThisLog();
                 }
                 break;
 
             case "find":
-                String searchedMessage = concate(args);
+                validArg(args, 2);
+                String searchedMessage = args[1];
                 int matchedCount = 0;
                 for (String commitRelPath : DirUtils.helpFindRelPathSetInGivenDir(COMMITS)) {
-                    Commit commit = (Commit) DirUtils.readGivenFileInGivenDir(commitRelPath, COMMITS, Commit.class);
-                    String commitMsg = commit.getMessage();
+                    Commit targetCommit = (Commit) DirUtils.readGivenFileInGivenDir(commitRelPath, COMMITS, Commit.class);
+                    String commitMsg = targetCommit.getMessage();
                     if (commitMsg.contains(searchedMessage)) {
-                        System.out.println(commit.sha());
+                        System.out.println(targetCommit.sha());
                         matchedCount += 1;
                     }
                 }
@@ -285,11 +270,6 @@ public class Main {
         }
 
 
-        static String concate(String[] args) {
-            String[] messageArgs = Arrays.copyOfRange(args, 1, args.length);
-            String messageString = String.join(" ", messageArgs).trim();
-            return messageString;
-        }
 }
 
 
