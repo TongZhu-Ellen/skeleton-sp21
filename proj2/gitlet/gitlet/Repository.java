@@ -1,7 +1,7 @@
 package gitlet;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.HashSet;
 
 import static gitlet.Utils.*;
 
@@ -22,28 +22,66 @@ public class Repository {
      * variable is used. We've provided two examples for you.
      */
 
-    /** The current working directory. */
+    /**
+     * The current working directory.
+     */
     public static final File CWD = new File(System.getProperty("user.dir"));
-    /** The .gitlet directory. */
-        public static final File GITLET_DIR = join(CWD, ".gitlet");
+    /**
+     * The .gitlet directory.
+     */
+    public static final File GITLET_DIR = join(CWD, ".gitlet");
 
-            public static final File ADD_STAGE = join(GITLET_DIR, ".stage_for_addition");
-            public static final File DEL_STAGE = join(GITLET_DIR, ".stage_for_deletion");
 
-            public static final File COMMITS = join(GITLET_DIR, "commits"); // this is a file;
-                public static final File HEAD = join(COMMITS, ".head");
-                public static final File MASTER = join(COMMITS, ".master");
+    public static final File ADD_STAGE = join(GITLET_DIR, ".stage_for_addition");
+    public static final File DEL_SET = join(GITLET_DIR, ".stage_for_deletion");
 
-            public static final File BLOBS = join(GITLET_DIR, "blobs"); // this is a dir;
+    public static final File COMMITS = join(GITLET_DIR, "commits");
+
+
+    public static final File BRANCHES = join(GITLET_DIR, ".branches");
+    public static final File HEAD = join(GITLET_DIR, "head");
+
+
+
+    public static final File BLOBS = join(GITLET_DIR, "blobs"); // this is a dir;
 
 
     // this is function that sets up files and dirs;
     // TODO: the 2 Files of XXX_STAGE is not implemented yet; I am not sure about what they should be;
-    static void setDirs() throws IOException {
-        GITLET_DIR.mkdir();
-        COMMITS.createNewFile();
-        HEAD.createNewFile();
-        MASTER.createNewFile();
-        BLOBS.mkdir();
+    static void setDirs() {
+        try {
+            GITLET_DIR.mkdir();
+            COMMITS.mkdir();
+            HEAD.createNewFile();
+            BRANCHES.mkdir();
+            BLOBS.mkdir();
+            ADD_STAGE.mkdir();
+            DEL_SET.createNewFile();
+            writeObject(DEL_SET, new HashSet<String>());
+        } catch (Exception ignore) {
+
+        }
     }
+
+    static void checkOut(Commit goalCommit, String relPath) {
+        File fileInCWD = join(CWD, relPath);
+        String oldSha = goalCommit.tryFindShaOfGivenName(relPath);
+        if (oldSha == null) {
+            throw new GitletException("File does not exist in that commit.");
+        }
+        byte[] oldContent = DirUtils.readGivenFileInGivenDir(oldSha, BLOBS);
+        writeContents(fileInCWD, oldContent);
+    }
+
+
+
+
+
+
+
+
+
+
 }
+
+
