@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.util.HashSet;
+import java.util.Set;
 
 import static gitlet.Utils.*;
 
@@ -75,6 +76,18 @@ public class Repository {
 
 
 
+    static void helpCheckout(Commit commit) {
+        Set<String> fileNameInCWD = DirUtils.helpFindRelPathSetInGivenDir(CWD);
+        Set<String> fileNameInCommit = commit.nameShaMap.keySet();
+        fileNameInCWD.removeAll(fileNameInCommit);
+        if (fileNameInCWD.isEmpty()) {
+            throw new GitletException("There is an untracked file in the way; delete it, or add and commit it first.");
+        }
+        for (String name: fileNameInCWD) {
+            byte[] content = commit.getContent(name);
+            writeContents(join(CWD, name), content);
+        }
+    }
 
 
 

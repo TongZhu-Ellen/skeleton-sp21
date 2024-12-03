@@ -2,7 +2,6 @@ package gitlet;
 
 import java.io.File;
 
-import java.util.Arrays;
 import java.util.Set;
 
 import static gitlet.Repository.*;
@@ -117,8 +116,12 @@ public class Main {
                         System.out.println("No need to checkout the current branch.");
                         break;
                     }
+                    Commit commit = BranchUtils.findBranch(branchName);
+                    Repository.helpCheckout(commit);
+                    BranchUtils.headThisBranch(branchName);
+                    DirUtils.clearDir(ADD_STAGE);
+                    DelSet.clear();
 
-                    // TODO:
                 }
 
 
@@ -129,11 +132,11 @@ public class Main {
                 validArg(args, 2);
                 String shortenedCommitID = args[1];
                 String commitId = matchCommitId(DirUtils.helpFindRelPathSetInGivenDir(COMMITS), shortenedCommitID);
-                // TODO
-
-
-
-
+                Commit commit = (Commit) DirUtils.readGivenFileInGivenDir(commitId, COMMITS, Commit.class);
+                Repository.helpCheckout(commit);
+                BranchUtils.updateBranch(getHeadBranch(), commit);
+                DirUtils.clearDir(ADD_STAGE);
+                DelSet.clear();
                 break;
 
 
