@@ -2,10 +2,7 @@ package gitlet;
 
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static gitlet.Repository.*;
 import static gitlet.Utils.*;
@@ -13,9 +10,10 @@ import static gitlet.Utils.*;
 public class BranchUtils {
 
     static Commit getHeadCommit() {
+        String headBranch = getHeadBranch();
+        HashMap<String, Commit> branchMap = readObject(BRANCHES, HashMap.class);
+        return branchMap.get(headBranch);
 
-        String shaOfBranch = readContentsAsString(join(BRANCHES, getHeadBranch()));
-        return (Commit) DirUtils.readGivenFileInGivenDir(shaOfBranch, COMMITS, Commit.class);
     }
 
     static String getHeadBranch() {
@@ -28,28 +26,25 @@ public class BranchUtils {
     }
 
     static void makeBranch(String branchName, Commit commit) {
-        File branchWholeAddress = join(BRANCHES, branchName);
-        if (branchWholeAddress.exists()) {
+        HashMap<String, Commit> branchMap = readObject(BRANCHES, HashMap.class);
+        if (branchMap.containsKey(branchName)) {
             System.out.println("A branch with that name already exists.");
+            System.exit(0);
         } else {
-            try {
-                branchWholeAddress.createNewFile();
-            } catch (Exception ignore) {
-
-            }
-            writeContents(branchWholeAddress, commit.sha());
+            branchMap.put(branchName, commit);
         }
+        writeObject(BRANCHES, branchMap);
     }
 
     static void updateBranch(String branchName, Commit commit) {
-        File branchWholeAddress = join(BRANCHES, branchName);
-        writeContents(branchWholeAddress, commit.sha());
-
+        HashMap<String, Commit> branchMap = readObject(BRANCHES, HashMap.class);
+        branchMap.put(branchName, commit);
+        writeObject(BRANCHES, branchMap);
     }
 
     static Commit findBranch(String branchName) {
-        String shaOfCommit = readContentsAsString(join(BRANCHES, branchName));
-        return (Commit) DirUtils.readGivenFileInGivenDir(shaOfCommit, COMMITS, Commit.class);
+        HashMap<String, Commit> branchMap = readObject(BRANCHES, HashMap.class);
+        return branchMap.get(branchName);
     }
 
     static void printBranchInOrder() {

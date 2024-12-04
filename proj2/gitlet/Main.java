@@ -48,13 +48,16 @@ public class Main {
                     return;
                 }
                 byte[] contentCWD = DirUtils.readGivenFileInGivenDir(name1, CWD);
-                byte[] contentHeadCommit = getHeadCommit().getContent(name1);
-                if (sha1(contentHeadCommit).equals(sha1(contentCWD))) {
-                    DelSet.remove(name1);
-                    DirUtils.tryRemoveGivenFileFromGivenDir(name1, ADD_STAGE);
-                } else {
-                    DirUtils.writeGivenContentInGivenDirWithName(contentCWD, ADD_STAGE, name1);
+                byte[] contentInHeadCommit = null;
+                if (getHeadCommit().nameShaMap.containsKey(name1)) {
+                    contentInHeadCommit = getHeadCommit().getContent(name1);
                 }
+                if ((contentInHeadCommit != null) && (!sha1(contentCWD).equals(sha1(contentInHeadCommit)))) {
+                    DirUtils.writeGivenContentInGivenDirWithName(contentCWD, ADD_STAGE, name1);
+                } else {
+                    DirUtils.tryRemoveGivenFileFromGivenDir(name1, ADD_STAGE);
+                }
+                DelSet.remove(name1);
                 break;
 
 
@@ -161,23 +164,7 @@ public class Main {
                 break;
 
 
-            case "branch":
-                validArg(args, 2);
-                makeBranch(args[1], getHeadCommit());
 
-                break;
-
-            case "rm-branch":
-                validArg(args, 2);
-                if (args[1].equals(getHeadBranch())) {
-                    System.out.println("Cannot remove the current branch.");
-
-                }
-                if (!DirUtils.tryRemoveGivenFileFromGivenDir(args[1], BRANCHES)) {
-                    System.out.println("A branch with that name does not exist.");
-                }
-
-                break;
 
             case "status":
                 validArg(args, 1);

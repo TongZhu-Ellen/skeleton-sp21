@@ -1,6 +1,7 @@
 package gitlet;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -56,7 +57,8 @@ public class Repository {
             GITLET_DIR.mkdir();
             COMMITS.mkdir();
             HEAD.createNewFile();
-            BRANCHES.mkdir();
+            BRANCHES.createNewFile();
+            writeContents(BRANCHES, new HashMap<String, Commit>());
             BLOBS.mkdir();
             ADD_STAGE.mkdir();
             DEL_SET.createNewFile();
