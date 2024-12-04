@@ -2,6 +2,7 @@ package gitlet;
 
 import java.io.File;
 
+import java.util.HashMap;
 import java.util.Set;
 
 import static gitlet.Repository.*;
@@ -150,6 +151,26 @@ public class Main {
                 helpCheckOutCommit(newBranchHead);
                 updateBranch(getHeadBranch(), newBranchHead);
                 break;
+
+            case "branch":
+                validArg(args, 2);
+                String branchName = args[1];
+                BranchUtils.makeBranch(branchName, getHeadCommit());
+
+            case "rm-branch":
+                validArg(args, 2);
+                String branchToBeRemoved = args[1];
+                HashMap<String, Commit> branchMap = readObject(BRANCHES, HashMap.class);
+                if (!branchMap.containsKey(branchToBeRemoved)) {
+                    System.out.println("A branch with that name does not exist.");
+                } else if (getHeadBranch().equals(branchToBeRemoved)) {
+                    System.out.println("Cannot remove the current branch.");
+                } else {
+
+                    branchMap.remove(branchToBeRemoved);
+                    writeObject(BRANCHES, branchMap);
+
+                }
 
 
             case "log":
