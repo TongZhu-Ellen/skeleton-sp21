@@ -2,6 +2,9 @@ package gitlet;
 
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static gitlet.Repository.*;
@@ -49,15 +52,17 @@ public class BranchUtils {
         return (Commit) DirUtils.readGivenFileInGivenDir(shaOfCommit, COMMITS, Commit.class);
     }
 
-    static void printHeadBranch() {
-        System.out.println("*" + getHeadBranch());
-    }
-
-    static void printOtherBranch() {
-        Set<String> branchNames = DirUtils.helpFindRelPathSetInGivenDir(BRANCHES);
-        branchNames.remove(getHeadBranch());
-        for (String name: branchNames) {
-            System.out.println(name);
+    static void printBranchInOrder() {
+        String headBranch = getHeadBranch();
+        List<String> list = new ArrayList<>(DirUtils.helpFindRelPathSetInGivenDir(BRANCHES)); // 将 Set 转换为 List
+        Collections.sort(list); // 按字典顺序排序
+        // 输出排序后的 List
+        for (String s : list) {
+            if (s.equals(headBranch)) {
+                System.out.println("*" + s);
+            } else {
+                System.out.println(s);
+            }
         }
     }
 

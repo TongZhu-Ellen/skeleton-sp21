@@ -2,8 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static gitlet.Utils.*;
 
@@ -37,6 +36,9 @@ public class DirUtils {
 
     static byte[] readGivenFileInGivenDir(String relPath, File dir) {
         File fullPath = join(dir, relPath);
+        if (!fullPath.isFile()) {
+            throw new GitletException("Error: " + fullPath + " is not a file.");
+        }
         return readContents(fullPath);
     }
 
@@ -66,6 +68,16 @@ public class DirUtils {
         }
 
     }
+
+    static void printSetInOrder(Set<String> set) {
+        List<String> list = new ArrayList<>(set); // 将 Set 转换为 List
+        Collections.sort(list); // 按字典顺序排序
+        // 输出排序后的 List
+        for (String s : list) {
+            System.out.println(s);
+        }
+    }
+
 
 
 
