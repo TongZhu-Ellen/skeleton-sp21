@@ -121,8 +121,7 @@ public class Main {
                     String commitSha = matchCommitId(DirUtils.helpFindRelPathSetInGivenDir(COMMITS), shortenedCommitSha);
                     Commit goalCommit = (Commit) DirUtils.readGivenFileInGivenDir(commitSha, COMMITS, Commit.class);
                     helpCheckoutSingleFileInGivenCommit(args[3], goalCommit);
-                } else {
-                    validArg(args, 2);
+                } else if (args.length == 2) {
                     String branchName = args[1];
                     File givenBranchFullPath = join(BRANCHES, branchName);
                     if (!givenBranchFullPath.exists()) {
@@ -135,6 +134,8 @@ public class Main {
                     Commit newBranchHead = findBranch(branchName);
                     helpCheckOutCommit(newBranchHead);
                     headThisBranch(branchName);
+                } else {
+                    throw new GitletException("Invalid arguements");
                 }
 
                 break;
@@ -163,10 +164,8 @@ public class Main {
                 } else if (getHeadBranch().equals(branchToBeRemoved)) {
                     System.out.println("Cannot remove the current branch.");
                 } else {
-
                     branchMap.remove(branchToBeRemoved);
                     writeObject(BRANCHES, branchMap);
-
                 }
 
 

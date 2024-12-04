@@ -13,7 +13,6 @@ public class BranchUtils {
         String headBranch = getHeadBranch();
         HashMap<String, Commit> branchMap = readObject(BRANCHES, HashMap.class);
         return branchMap.get(headBranch);
-
     }
 
     static String getHeadBranch() {
