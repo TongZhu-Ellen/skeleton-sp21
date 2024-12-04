@@ -49,13 +49,9 @@ public class Main {
                     return;
                 }
                 byte[] contentCWD = DirUtils.readGivenFileInGivenDir(name1, CWD);
-                byte[] contentInHeadCommit = null;
-                if (getHeadCommit().nameShaMap.containsKey(name1)) {
-                    contentInHeadCommit = getHeadCommit().getContent(name1);
-                }
-                if ((contentInHeadCommit != null) && (!sha1(contentCWD).equals(sha1(contentInHeadCommit)))) {
-                    DirUtils.writeGivenContentInGivenDirWithName(contentCWD, ADD_STAGE, name1);
-                } else {
+                DirUtils.writeGivenContentInGivenDirWithName(contentCWD, ADD_STAGE, name1);
+                Commit headCommit = getHeadCommit();
+                if (headCommit.nameShaMap.containsKey(name1) && sha1(contentCWD).equals(sha1(headCommit.getContent(name1)))) {
                     DirUtils.tryRemoveGivenFileFromGivenDir(name1, ADD_STAGE);
                 }
                 DelSet.remove(name1);
