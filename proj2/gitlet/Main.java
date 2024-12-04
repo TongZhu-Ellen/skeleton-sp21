@@ -97,9 +97,9 @@ public class Main {
                 break;
 
             case "checkout":
-                if (args.length == 3) {
+                if ((args.length == 3) && (args[1].equals("--"))) {
                     Repository.helpCheckoutSingleFileInGivenCommit(args[2], getHeadCommit());
-                } else if (args.length == 4) {
+                } else if ((args.length == 4) && (args[2].equals("--"))) {
                     String shortenedCommitSha = args[1];
                     String commitSha = matchCommitId(DirUtils.helpFindRelPathSetInGivenDir(COMMITS), shortenedCommitSha);
                     Commit goalCommit = (Commit) DirUtils.readGivenFileInGivenDir(commitSha, COMMITS, Commit.class);
@@ -119,7 +119,6 @@ public class Main {
                     Repository.helpCheckOutCommit(newBranchHead);
                     headThisBranch(branchName);
                 }
-
 
                 break;
 
