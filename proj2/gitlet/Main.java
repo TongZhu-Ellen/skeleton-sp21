@@ -67,7 +67,7 @@ public class Main {
                 if (DirUtils.tryRemoveGivenFileFromGivenDir(name2, ADD_STAGE)) {
                     actionCount += 1;
                 }
-                if (getHeadCommit().tryFindShaOfGivenName(name2) != null) {
+                if (getHeadCommit().nameShaMap.containsKey(name2)) {
                     DelSet.add(name2);
                     nameInCWD.delete();
                     actionCount += 1;
