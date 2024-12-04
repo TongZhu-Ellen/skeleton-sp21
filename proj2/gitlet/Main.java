@@ -81,7 +81,7 @@ public class Main {
 
             case "commit":
 
-                if (ADD_STAGE.listFiles().length == 0) {
+                if ((ADD_STAGE.listFiles().length == 0) && (DelSet.getSet().size() == 0)) {
                     System.out.println("No changes added to the commit.");
                     break;
                 }
