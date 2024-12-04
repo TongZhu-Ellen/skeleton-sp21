@@ -3,6 +3,7 @@ package gitlet;
 import java.io.File;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 import static gitlet.Repository.*;
@@ -245,26 +246,31 @@ public class Main {
             }
         }
 
-        static String matchCommitId (Set<String> set, String prefix){
-            String matched = null;
+        static String matchCommitId (Set<String> set, String prefix) {
+            Set<String> matchSet = new HashSet<>();
             for (String str : set) {
                 if (str.startsWith(prefix)) {
-                    if (matched != null) {
-                        // 如果已经找到一个匹配项，再找到一个，返回null
-                        return null;
-                    }
-                    matched = str;
+                    matchSet.add(str);
                 }
             }
-
-            if (matched == null) {
+            if (matchSet.size() == 0) {
                 System.out.println("No commit with that id exists.");
                 System.exit(0);
+            } else if (matchSet.size() >= 2) {
+                System.out.println("Too many commits with that id exists.");
+                System.exit(0);
+            } else {
+                String element = matchSet.iterator().next(); // 获取唯一的元素
+                return element;
             }
-
-            return matched;
-
+            return null;
         }
+
+
+
+
+
+
 
 
 }
