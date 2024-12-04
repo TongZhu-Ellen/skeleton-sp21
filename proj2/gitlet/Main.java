@@ -98,13 +98,12 @@ public class Main {
 
             case "checkout":
                 if (args.length == 3) {
-                    String relPath = args[2];
-                    checkOut(getHeadCommit(), relPath);
+                    helpCheckoutSingleFileInGivenCommit(args[2], getHeadCommit());
                 } else if (args.length == 4) {
-                    String shortenedID = args[1];
-                    String commitSha = matchCommitId(DirUtils.helpFindRelPathSetInGivenDir(COMMITS), shortenedID);
+                    String shortenedCommitSha = args[1];
+                    String commitSha = matchCommitId(DirUtils.helpFindRelPathSetInGivenDir(COMMITS), shortenedCommitSha);
                     Commit goalCommit = (Commit) DirUtils.readGivenFileInGivenDir(commitSha, COMMITS, Commit.class);
-                    checkOut(goalCommit, args[3]);
+                    helpCheckoutSingleFileInGivenCommit(args[3], goalCommit);
                 } else {
                     validArg(args, 2);
                     String branchName = args[1];
@@ -116,9 +115,9 @@ public class Main {
                         System.out.println("No need to checkout the current branch.");
                         break;
                     }
-                    Commit commit = BranchUtils.findBranch(branchName);
-                    Repository.helpCheckout(commit);
-
+                    Commit newBranchHead = findBranch(branchName);
+                    Repository.helpCheckOutCommit(newBranchHead);
+                    headThisBranch(branchName);
                 }
 
 
@@ -129,9 +128,9 @@ public class Main {
                 validArg(args, 2);
                 String shortenedCommitID = args[1];
                 String commitId = matchCommitId(DirUtils.helpFindRelPathSetInGivenDir(COMMITS), shortenedCommitID);
-                Commit commit = (Commit) DirUtils.readGivenFileInGivenDir(commitId, COMMITS, Commit.class);
-                Repository.helpCheckout(commit);
-
+                Commit newBranchHead = (Commit) DirUtils.readGivenFileInGivenDir(commitId, COMMITS, Commit.class);
+                Repository.helpCheckOutCommit(newBranchHead);
+                BranchUtils.updateBranch(getHeadBranch(), newBranchHead);
                 break;
 
 
