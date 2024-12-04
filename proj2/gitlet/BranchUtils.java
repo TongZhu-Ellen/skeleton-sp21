@@ -49,7 +49,7 @@ public class BranchUtils {
 
     static void printBranchInOrder() {
         String headBranch = getHeadBranch();
-        List<String> list = new ArrayList<>(DirUtils.helpFindRelPathSetInGivenDir(BRANCHES)); // 将 Set 转换为 List
+        List<String> list = new ArrayList<>(readObject(BRANCHES, HashMap.class).keySet()); // 将 Set 转换为 List
         Collections.sort(list); // 按字典顺序排序
         // 输出排序后的 List
         for (String s : list) {
