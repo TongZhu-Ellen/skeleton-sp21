@@ -70,7 +70,8 @@ public class Repository {
     static void helpCheckoutSingleFileInGivenCommit(String name, Commit goalCommit) {
         Set<String> filesInGoalCommit = goalCommit.nameShaMap.keySet();
         if (!filesInGoalCommit.contains(name)) {
-            throw new GitletException("File does not exist in that commit.");
+            System.out.println("File does not exist in that commit.");
+            return;
         }
         byte[] content = goalCommit.getContent(name);
         DirUtils.writeGivenContentInGivenDirWithName(content, CWD, name);
@@ -93,7 +94,7 @@ public class Repository {
         }
         for (String name: filesInOldBranchHead) {
             if (!filesInNewBranchHead.contains(name)) {
-                join(CWD, name).delete();
+                DirUtils.tryRemoveGivenFileFromGivenDir(name, CWD);
             }
         }
     }

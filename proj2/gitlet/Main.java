@@ -98,12 +98,12 @@ public class Main {
 
             case "checkout":
                 if (args.length == 3) {
-                    helpCheckoutSingleFileInGivenCommit(args[2], getHeadCommit());
+                    Repository.helpCheckoutSingleFileInGivenCommit(args[2], getHeadCommit());
                 } else if (args.length == 4) {
                     String shortenedCommitSha = args[1];
                     String commitSha = matchCommitId(DirUtils.helpFindRelPathSetInGivenDir(COMMITS), shortenedCommitSha);
                     Commit goalCommit = (Commit) DirUtils.readGivenFileInGivenDir(commitSha, COMMITS, Commit.class);
-                    helpCheckoutSingleFileInGivenCommit(args[3], goalCommit);
+                    Repository.helpCheckoutSingleFileInGivenCommit(args[3], goalCommit);
                 } else {
                     validArg(args, 2);
                     String branchName = args[1];
@@ -238,7 +238,7 @@ public class Main {
             }
         }
 
-        static String matchCommitId (Set < String > set, String prefix){
+        static String matchCommitId (Set<String> set, String prefix){
             String matched = null;
             for (String str : set) {
                 if (str.startsWith(prefix)) {
