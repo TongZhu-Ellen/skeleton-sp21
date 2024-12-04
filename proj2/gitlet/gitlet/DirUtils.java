@@ -42,6 +42,9 @@ public class DirUtils {
 
     static Object readGivenFileInGivenDir(String relPath, File dir, Class objectType) {
         File fullPath = join(dir, relPath);
+        if (!fullPath.isFile()) {
+            throw new GitletException("Error: " + fullPath + " is not a file.");
+        }
         return readObject(fullPath, objectType);
     }
 

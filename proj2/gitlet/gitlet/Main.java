@@ -41,70 +41,85 @@ public class Main {
 
             case "add":
                 validArg(args, 2);
-                String fileName = args[1];
-                File curVersionFullPath = join(CWD, fileName);
-                if (!curVersionFullPath.exists()) {
+                String name1 = args[1];
+
+                if (!join(CWD, name1).exists()) {
                     System.out.println("File does not exist.");
-                } else {
-                    byte[] curContent = readContents(curVersionFullPath);
-                    String shaOfCurVersion = sha1(curContent);
-                    String shaOfPreVersion = getHeadCommit().tryFindShaOfGivenName(fileName);
-                    if (shaOfCurVersion.equals(shaOfPreVersion)) {
-                        DirUtils.tryRemoveGivenFileFromGivenDir(fileName, ADD_STAGE);
-                        DelSet.remove(fileName);
-
-                    } else {
-                        DirUtils.writeGivenContentInGivenDirWithName(curContent, ADD_STAGE, fileName);
-                    }
+                    return;
                 }
-
+                byte[] contentCWD = DirUtils.readGivenFileInGivenDir(name1, CWD);
+                byte[] contentHeadCommit = getHeadCommit().getContent(name1);
+                if (sha1(contentHeadCommit).equals(sha1(contentCWD))) {
+                    DelSet.remove(name1);
+                    DirUtils.tryRemoveGivenFileFromGivenDir(name1, ADD_STAGE);
+                } else {
+                    DirUtils.writeGivenContentInGivenDirWithName(contentCWD, ADD_STAGE, name1);
+                }
                 break;
 
 
+            case "rm":
+                validArg(args, 2);
+                int actionCount = 0;
+                String name2 = args[1];
+                File nameInCWD = join(CWD, name2);
+
+                if (DirUtils.tryRemoveGivenFileFromGivenDir(name2, ADD_STAGE)) {
+                    actionCount += 1;
+                }
+                if (getHeadCommit().tryFindShaOfGivenName(name2) != null) {
+                    DelSet.add(name2);
+                    nameInCWD.delete();
+                    actionCount += 1;
+                }
+                if (actionCount == 0) {
+                    System.out.println("No reason to remove the file.");
+                }
+                break;
+
+
+
             case "commit":
+
                 if (ADD_STAGE.listFiles().length == 0) {
                     System.out.println("No changes added to the commit.");
                     break;
                 }
                 validArg(args, 2);
-                String msg = args[1];
-                if (msg.isEmpty()) {
+                if (args[1].isEmpty()) {
                     System.out.println("Please enter a commit message.");
                     break;
-                } else {
-                    String message = msg;
-                    Commit oldCommit = getHeadCommit();
-                    Commit newCommit = new Commit(message, oldCommit.sha());
-                    for (String name : oldCommit.nameShaMap.keySet()) {
-                        String sha = oldCommit.nameShaMap.get(name);
-                        newCommit.nameShaMap.put(name, sha);
-                    }
-                    for (String name : DirUtils.helpFindRelPathSetInGivenDir(ADD_STAGE)) {
-                        byte[] content = DirUtils.readGivenFileInGivenDir(name, ADD_STAGE);
-                        String sha = sha1(content);
-                        DirUtils.writeGivenContentInGivenDirWithName(content, BLOBS, sha);
-                        newCommit.nameShaMap.put(name, sha);
-                    }
-                    for (String name : DelSet.getSet()) {
-                        newCommit.nameShaMap.remove(name);
-                    }
-                    DirUtils.writeGivenObjInGivenDir(newCommit, COMMITS);
-                    updateBranch(getHeadBranch(), newCommit);
-                    DirUtils.clearDir(ADD_STAGE);
-                    DelSet.clear();
-
                 }
+                String message = args[1];
+                Commit oldCommit = getHeadCommit();
+                Commit newCommit = new Commit(message, oldCommit.sha());
+                for (String name : oldCommit.nameShaMap.keySet()) {
+                    String sha = oldCommit.nameShaMap.get(name);
+                    newCommit.nameShaMap.put(name, sha);
+                }
+                for (String name : DirUtils.helpFindRelPathSetInGivenDir(ADD_STAGE)) {
+                    byte[] content = DirUtils.readGivenFileInGivenDir(name, ADD_STAGE);
+                    String sha = sha1(content);
+                    newCommit.nameShaMap.put(name, sha);
+                    DirUtils.writeGivenContentInGivenDirWithName(content, BLOBS, sha);
+                }
+                for (String name : DelSet.getSet()) {
+                    newCommit.nameShaMap.remove(name);
+                }
+                DirUtils.writeGivenObjInGivenDir(newCommit, COMMITS);
+                updateBranch(getHeadBranch(), newCommit);
+                DirUtils.clearDir(ADD_STAGE);
+                DelSet.clear();
                 break;
 
             case "checkout":
-                if (args.length == 3) {
-                    String relPath = args[2];
-                    checkOut(getHeadCommit(), relPath);
-                } else if (args.length == 4) {
-                    String shortenedID = args[1];
-                    String commitSha = matchCommitId(DirUtils.helpFindRelPathSetInGivenDir(COMMITS), shortenedID);
+                if ((args.length == 3) && (args[1].equals("--"))) {
+                    helpCheckoutSingleFileInGivenCommit(args[2], getHeadCommit());
+                } else if ((args.length == 4) && (args[2].equals("--"))) {
+                    String shortenedCommitSha = args[1];
+                    String commitSha = matchCommitId(DirUtils.helpFindRelPathSetInGivenDir(COMMITS), shortenedCommitSha);
                     Commit goalCommit = (Commit) DirUtils.readGivenFileInGivenDir(commitSha, COMMITS, Commit.class);
-                    checkOut(goalCommit, args[3]);
+                    helpCheckoutSingleFileInGivenCommit(args[3], goalCommit);
                 } else {
                     validArg(args, 2);
                     String branchName = args[1];
@@ -116,17 +131,10 @@ public class Main {
                         System.out.println("No need to checkout the current branch.");
                         break;
                     }
-                    Commit commit = BranchUtils.findBranch(branchName);
-                    Repository.helpCheckout(commit);
-
-
-
-
-                    DirUtils.clearDir(ADD_STAGE);
-                    DelSet.clear();
-
+                    Commit newBranchHead = findBranch(branchName);
+                    helpCheckOutCommit(newBranchHead);
+                    headThisBranch(branchName);
                 }
-
 
                 break;
 
@@ -135,12 +143,9 @@ public class Main {
                 validArg(args, 2);
                 String shortenedCommitID = args[1];
                 String commitId = matchCommitId(DirUtils.helpFindRelPathSetInGivenDir(COMMITS), shortenedCommitID);
-                Commit commit = (Commit) DirUtils.readGivenFileInGivenDir(commitId, COMMITS, Commit.class);
-                Repository.helpCheckout(commit);
-
-
-                DirUtils.clearDir(ADD_STAGE);
-                DelSet.clear();
+                Commit newBranchHead = (Commit) DirUtils.readGivenFileInGivenDir(commitId, COMMITS, Commit.class);
+                helpCheckOutCommit(newBranchHead);
+                updateBranch(getHeadBranch(), newBranchHead);
                 break;
 
 
@@ -148,24 +153,6 @@ public class Main {
                 getHeadCommit().printLogFromThis();
                 break;
 
-            case "rm":
-                validArg(args, 2);
-                int actionCount = 0;
-                String name = args[1];
-                File nameInCWD = join(CWD, name);
-
-                if (DirUtils.tryRemoveGivenFileFromGivenDir(name, ADD_STAGE)) {
-                    actionCount += 1;
-                }
-                if (getHeadCommit().tryFindShaOfGivenName(name) != null) {
-                    DelSet.add(name);
-                    nameInCWD.delete();
-                    actionCount += 1;
-                }
-                if (actionCount == 0) {
-                    System.out.println("No reason to remove the file.");
-                }
-                break;
 
             case "branch":
                 validArg(args, 2);
@@ -248,7 +235,7 @@ public class Main {
             }
         }
 
-        static String matchCommitId (Set < String > set, String prefix){
+        static String matchCommitId (Set<String> set, String prefix){
             String matched = null;
             for (String str : set) {
                 if (str.startsWith(prefix)) {

@@ -27,7 +27,7 @@ public class BranchUtils {
     static void makeBranch(String branchName, Commit commit) {
         File branchWholeAddress = join(BRANCHES, branchName);
         if (branchWholeAddress.exists()) {
-            throw new GitletException("A branch with that name already exists.");
+            System.out.println("A branch with that name already exists.");
         } else {
             try {
                 branchWholeAddress.createNewFile();

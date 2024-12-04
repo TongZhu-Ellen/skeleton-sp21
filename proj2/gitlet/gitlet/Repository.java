@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
+import static gitlet.BranchUtils.getHeadCommit;
+import static gitlet.BranchUtils.headThisBranch;
 import static gitlet.Utils.*;
 
 // TODO: any imports you need here
@@ -64,49 +66,39 @@ public class Repository {
         }
     }
 
-    static void checkOut(Commit goalCommit, String relPath) {
-        File fileInCWD = join(CWD, relPath);
-        String oldSha = goalCommit.tryFindShaOfGivenName(relPath);
-        if (oldSha == null) {
-            throw new GitletException("File does not exist in that commit.");
+
+    static void helpCheckoutSingleFileInGivenCommit(String name, Commit goalCommit) {
+        Set<String> filesInGoalCommit = goalCommit.nameShaMap.keySet();
+        if (!filesInGoalCommit.contains(name)) {
+            System.out.println("File does not exist in that commit.");
+            return;
         }
-        byte[] oldContent = DirUtils.readGivenFileInGivenDir(oldSha, BLOBS);
-        writeContents(fileInCWD, oldContent);
+        byte[] content = goalCommit.getContent(name);
+        DirUtils.writeGivenContentInGivenDirWithName(content, CWD, name);
     }
 
-
-
-    static void helpCheckout(Commit commit) {
+    static void helpCheckOutCommit(Commit newBranchHead) {
+        Commit oldBranchHead = getHeadCommit();
+        Set<String> filesInNewBranchHead = newBranchHead.nameShaMap.keySet();
+        Set<String> filesInOldBranchHead = oldBranchHead.nameShaMap.keySet();
         Set<String> filesInCWD = DirUtils.helpFindRelPathSetInGivenDir(CWD);
-        Set<String> filesInCommit = commit.nameShaMap.keySet();
-        Set<String> untracked = new HashSet<>(filesInCWD);
-        untracked.removeAll(filesInCommit);
-        if (!untracked.isEmpty()) {
-            throw new GitletException("There is an untracked file in the way; delete it, or add and commit it first.");
-        }
-        for (String name: filesInCommit) {
-            byte[] content = commit.getContent(name);
-            if (!filesInCWD.contains(name)) {
-                try {
-                    join(CWD, name).createNewFile();
-                } catch (Exception ignore) {
-
-                }
+        for (String name: filesInCWD) {
+            if ((!filesInOldBranchHead.contains(name)) && (DirUtils.readGivenFileInGivenDir(name, CWD).equals(newBranchHead.getContent(name)))) {
+                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                return;
             }
+        }
+        for (String name: filesInNewBranchHead) {
+            byte[] content = newBranchHead.getContent(name);
             DirUtils.writeGivenContentInGivenDirWithName(content, CWD, name);
         }
-        Set<String> filesInHeadButNotCommit = DirUtils.helpFindRelPathSetInGivenDir(HEAD);
-        filesInHeadButNotCommit.removeAll(filesInCommit);
-        Commit head = BranchUtils.getHeadCommit();
-        for (String name: filesInHeadButNotCommit) {
-            head.nameShaMap.remove(name);
+        for (String name: filesInOldBranchHead) {
+            if (!filesInNewBranchHead.contains(name)) {
+                DirUtils.tryRemoveGivenFileFromGivenDir(name, CWD);
+            }
         }
-
-        BranchUtils.makeBranch(BranchUtils.getHeadBranch(), commit);
-        DirUtils.clearDir(ADD_STAGE);
-        DelSet.clear();
-
     }
+
 
 
 
@@ -117,5 +109,14 @@ public class Repository {
 
 
 }
+
+
+
+
+
+
+
+
+
 
 
