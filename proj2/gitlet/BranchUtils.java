@@ -31,7 +31,9 @@ public class BranchUtils {
             return;
         } else {
             branchMap.put(branchName, commit);
-            System.out.println("====");
+            if (branchName != "master") {
+                System.out.println("===");
+            }
         }
         writeObject(BRANCHES, branchMap);
 
