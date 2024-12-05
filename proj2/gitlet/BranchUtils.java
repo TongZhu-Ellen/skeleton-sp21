@@ -28,11 +28,14 @@ public class BranchUtils {
         HashMap<String, Commit> branchMap = readObject(BRANCHES, HashMap.class);
         if (branchMap.containsKey(branchName)) {
             System.out.println("A branch with that name already exists.");
-            System.exit(0);
+            return;
         } else {
             branchMap.put(branchName, commit);
+            System.out.println("====");
         }
         writeObject(BRANCHES, branchMap);
+
+
     }
 
     static void updateBranch(String branchName, Commit commit) {

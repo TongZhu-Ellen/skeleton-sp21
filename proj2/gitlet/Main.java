@@ -134,8 +134,6 @@ public class Main {
                     Commit newBranchHead = findBranch(branchName);
                     helpCheckOutCommit(newBranchHead);
                     headThisBranch(branchName);
-                } else {
-                    throw new GitletException("Invalid arguements");
                 }
 
                 break;
@@ -154,6 +152,7 @@ public class Main {
                 validArg(args, 2);
                 String branchName = args[1];
                 BranchUtils.makeBranch(branchName, getHeadCommit());
+
 
             case "rm-branch":
                 validArg(args, 2);
@@ -233,6 +232,11 @@ public class Main {
                 }
 
                 break;
+
+
+            default:
+                System.out.println("Incorrect operands");
+                System.exit(0);
 
 
         }
