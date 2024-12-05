@@ -107,6 +107,9 @@ public class DirUtils {
     static Set<String> helpFindRelPathSetInGivenDir(File searchedDir) {
         Set<String> relativePathsSet = new HashSet<>();
         for (File file : searchedDir.listFiles()) {
+            if (file.getName().equals(".gitlet")) {
+                continue;
+            }
             String relativePath = searchedDir.toPath().relativize(file.toPath()).toString();
             relativePathsSet.add(relativePath);  // 添加到 set，自动去重
         }

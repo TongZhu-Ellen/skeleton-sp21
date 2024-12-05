@@ -146,7 +146,7 @@ public class Main {
                 String shortenedCommitID = args[1];
                 String commitId = matchCommitId(DirUtils.helpFindRelPathSetInGivenDir(COMMITS), shortenedCommitID);
                 Commit newBranchHead = (Commit) DirUtils.readGivenFileInGivenDir(commitId, COMMITS, Commit.class);
-                helpCheckOutCommit(newBranchHead);
+                Repository.helpCheckOutCommit(newBranchHead);
                 updateBranch(getHeadBranch(), newBranchHead);
                 break;
 
