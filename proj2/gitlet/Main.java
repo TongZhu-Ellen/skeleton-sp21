@@ -121,7 +121,8 @@ public class Main {
                     String commitSha = matchCommitId(DirUtils.helpFindRelPathSetInGivenDir(COMMITS), shortenedCommitSha);
                     Commit goalCommit = (Commit) DirUtils.readGivenFileInGivenDir(commitSha, COMMITS, Commit.class);
                     helpCheckoutSingleFileInGivenCommit(args[3], goalCommit);
-                } else if (args.length == 2) {
+                } else {
+                    validArg(args, 2);
                     String branchName = args[1];
                     File givenBranchFullPath = join(BRANCHES, branchName);
                     if (!givenBranchFullPath.exists()) {
@@ -235,7 +236,7 @@ public class Main {
 
 
             default:
-                System.out.println("Incorrect operands.");
+                System.out.println("No command with that name exists.");
                 System.exit(0);
 
 
@@ -245,7 +246,8 @@ public class Main {
 
         static void validArg (String[]args,int n){
             if (args.length != n) {
-                throw new GitletException("Invalid number of arguments");
+                System.out.println("Incorrect operands.");
+                System.exit(0);
             }
         }
 

@@ -31,7 +31,7 @@ public class BranchUtils {
             return;
         } else {
             branchMap.put(branchName, commit);
-           
+
         }
         writeObject(BRANCHES, branchMap);
 
