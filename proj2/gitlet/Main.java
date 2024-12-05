@@ -127,10 +127,10 @@ public class Main {
                     File givenBranchFullPath = join(BRANCHES, branchName);
                     if (!givenBranchFullPath.exists()) {
                         System.out.println("No such branch exists.");
-                        break;
+                        return;
                     } else if (branchName.equals(getHeadBranch())) {
                         System.out.println("No need to checkout the current branch.");
-                        break;
+                        return;
                     }
                     Commit newBranchHead = findBranch(branchName);
                     Repository.helpCheckOutCommit(newBranchHead);
