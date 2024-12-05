@@ -4,6 +4,7 @@ import java.io.File;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static gitlet.Repository.*;
@@ -27,6 +28,12 @@ public class Main {
             System.exit(0);
         }
         String firstArg = args[0];
+        Set<String> set = new HashSet<>(List.of("add", "commit", "rm", "log", "global-log", "status", "find", "checkout", "branch", "rm-branch", "reset", "merge"));
+        if (set.contains(firstArg) && (!GITLET_DIR.exists())) {
+            System.out.println("Not in an initialized Gitlet directory.");
+            return;
+        }
+
         switch (firstArg) {
             case "init":
                 validArg(args, 1);
