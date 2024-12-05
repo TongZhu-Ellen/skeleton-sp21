@@ -99,6 +99,8 @@ public class Repository {
                 DirUtils.tryRemoveGivenFileFromGivenDir(name, CWD);
             }
         }
+        DirUtils.clearDir(ADD_STAGE);
+        DelSet.clear();
     }
 
 

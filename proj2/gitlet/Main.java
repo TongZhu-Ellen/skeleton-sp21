@@ -36,7 +36,7 @@ public class Main {
                     setDirs();
                     Commit initialCommit = new Commit("initial commit", null);
                     DirUtils.writeGivenObjInGivenDir(initialCommit, COMMITS);
-                    makeBranch("master", initialCommit);
+                    BranchUtils.makeBranch("master", initialCommit);
                     headThisBranch("master");
                 }
                 break;
@@ -124,16 +124,16 @@ public class Main {
                 } else {
                     validArg(args, 2);
                     String branchName = args[1];
-                    File givenBranchFullPath = join(BRANCHES, branchName);
-                    if (!givenBranchFullPath.exists()) {
+
+                    if (!readObject(BRANCHES, HashMap.class).keySet().contains(branchName)) {
                         System.out.println("No such branch exists.");
                         return;
                     } else if (branchName.equals(getHeadBranch())) {
                         System.out.println("No need to checkout the current branch.");
                         return;
                     }
-                    Commit newBranchHead = findBranch(branchName);
-                    Repository.helpCheckOutCommit(newBranchHead);
+
+                    Repository.helpCheckOutCommit(findBranch(branchName));
                     headThisBranch(branchName);
                 }
 
