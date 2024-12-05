@@ -1,11 +1,12 @@
 package gitlet;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
 import static gitlet.BranchUtils.getHeadCommit;
-import static gitlet.BranchUtils.headThisBranch;
+
 import static gitlet.Utils.*;
 
 // TODO: any imports you need here
@@ -50,13 +51,14 @@ public class Repository {
 
 
     // this is function that sets up files and dirs;
-    // TODO: the 2 Files of XXX_STAGE is not implemented yet; I am not sure about what they should be;
+
     static void setDirs() {
         try {
             GITLET_DIR.mkdir();
             COMMITS.mkdir();
             HEAD.createNewFile();
-            BRANCHES.mkdir();
+            BRANCHES.createNewFile();
+            writeObject(BRANCHES, new HashMap<String, Commit>());
             BLOBS.mkdir();
             ADD_STAGE.mkdir();
             DEL_SET.createNewFile();

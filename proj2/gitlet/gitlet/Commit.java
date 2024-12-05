@@ -70,10 +70,7 @@ public class Commit implements Serializable {
 
 
 
-    // might return null;
-    String tryFindShaOfGivenName(String name) {
-        return this.nameShaMap.getOrDefault(name, null);
-    }
+
 
 
 

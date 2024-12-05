@@ -2,6 +2,8 @@ package gitlet;
 
 import java.io.File;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
 import static gitlet.Repository.*;
@@ -48,13 +50,12 @@ public class Main {
                     return;
                 }
                 byte[] contentCWD = DirUtils.readGivenFileInGivenDir(name1, CWD);
-                byte[] contentHeadCommit = getHeadCommit().getContent(name1);
-                if (sha1(contentHeadCommit).equals(sha1(contentCWD))) {
-                    DelSet.remove(name1);
+                DirUtils.writeGivenContentInGivenDirWithName(contentCWD, ADD_STAGE, name1);
+                Commit headCommit = getHeadCommit();
+                if (headCommit.nameShaMap.containsKey(name1) && sha1(contentCWD).equals(sha1(headCommit.getContent(name1)))) {
                     DirUtils.tryRemoveGivenFileFromGivenDir(name1, ADD_STAGE);
-                } else {
-                    DirUtils.writeGivenContentInGivenDirWithName(contentCWD, ADD_STAGE, name1);
                 }
+                DelSet.remove(name1);
                 break;
 
 
@@ -67,7 +68,7 @@ public class Main {
                 if (DirUtils.tryRemoveGivenFileFromGivenDir(name2, ADD_STAGE)) {
                     actionCount += 1;
                 }
-                if (getHeadCommit().tryFindShaOfGivenName(name2) != null) {
+                if (getHeadCommit().nameShaMap.containsKey(name2)) {
                     DelSet.add(name2);
                     nameInCWD.delete();
                     actionCount += 1;
@@ -81,7 +82,7 @@ public class Main {
 
             case "commit":
 
-                if (ADD_STAGE.listFiles().length == 0) {
+                if ((ADD_STAGE.listFiles().length == 0) && (DelSet.getSet().size() == 0)) {
                     System.out.println("No changes added to the commit.");
                     break;
                 }
@@ -123,16 +124,16 @@ public class Main {
                 } else {
                     validArg(args, 2);
                     String branchName = args[1];
-                    File givenBranchFullPath = join(BRANCHES, branchName);
-                    if (!givenBranchFullPath.exists()) {
+
+                    if (!readObject(BRANCHES, HashMap.class).keySet().contains(branchName)) {
                         System.out.println("No such branch exists.");
-                        break;
+                        return;
                     } else if (branchName.equals(getHeadBranch())) {
                         System.out.println("No need to checkout the current branch.");
-                        break;
+                        return;
                     }
-                    Commit newBranchHead = findBranch(branchName);
-                    helpCheckOutCommit(newBranchHead);
+                    
+                    Repository.helpCheckOutCommit(findBranch(branchName));
                     headThisBranch(branchName);
                 }
 
@@ -144,52 +145,66 @@ public class Main {
                 String shortenedCommitID = args[1];
                 String commitId = matchCommitId(DirUtils.helpFindRelPathSetInGivenDir(COMMITS), shortenedCommitID);
                 Commit newBranchHead = (Commit) DirUtils.readGivenFileInGivenDir(commitId, COMMITS, Commit.class);
-                helpCheckOutCommit(newBranchHead);
+                Repository.helpCheckOutCommit(newBranchHead);
                 updateBranch(getHeadBranch(), newBranchHead);
                 break;
+
+            case "branch":
+                validArg(args, 2);
+                String branchName = args[1];
+                BranchUtils.makeBranch(branchName, getHeadCommit());
+
+
+            case "rm-branch":
+                validArg(args, 2);
+                String branchToBeRemoved = args[1];
+                HashMap<String, Commit> branchMap = readObject(BRANCHES, HashMap.class);
+                if (!branchMap.containsKey(branchToBeRemoved)) {
+                    System.out.println("A branch with that name does not exist.");
+                } else if (getHeadBranch().equals(branchToBeRemoved)) {
+                    System.out.println("Cannot remove the current branch.");
+                } else {
+                    branchMap.remove(branchToBeRemoved);
+                    writeObject(BRANCHES, branchMap);
+                }
 
 
             case "log":
                 getHeadCommit().printLogFromThis();
                 break;
 
-
-            case "branch":
-                validArg(args, 2);
-                makeBranch(args[1], getHeadCommit());
-
+            case "global-log":
+                for (String commitRelPath : DirUtils.helpFindRelPathSetInGivenDir(COMMITS)) {
+                    Commit curCommit = (Commit) DirUtils.readGivenFileInGivenDir(commitRelPath, COMMITS, Commit.class);
+                    curCommit.printThisLog();
+                }
                 break;
 
-            case "rm-branch":
-                validArg(args, 2);
-                if (args[1].equals(getHeadBranch())) {
-                    System.out.println("Cannot remove the current branch.");
 
-                }
-                if (!DirUtils.tryRemoveGivenFileFromGivenDir(args[1], BRANCHES)) {
-                    System.out.println("A branch with that name does not exist.");
-                }
 
-                break;
 
             case "status":
                 validArg(args, 1);
+
                 System.out.println("=== Branches ===");
-                printHeadBranch();
-                printOtherBranch();
+                BranchUtils.printBranchInOrder();
                 System.out.println("");
+
+
 
                 System.out.println("=== Staged Files ===");
-                for (String stagedFile : DirUtils.helpFindRelPathSetInGivenDir(ADD_STAGE)) {
-                    System.out.println(stagedFile);
-                }
+                DirUtils.printSetInOrder(DirUtils.helpFindRelPathSetInGivenDir(ADD_STAGE));
                 System.out.println("");
 
+
+
+
                 System.out.println("=== Removed Files ===");
-                for (String toBeDelFile : DelSet.getSet()) {
-                    System.out.println(toBeDelFile);
-                }
+                DirUtils.printSetInOrder(DelSet.getSet());
                 System.out.println("");
+
+
+
 
                 System.out.println("=== Modifications Not Staged For Commit ===");
                 System.out.println("");
@@ -199,12 +214,7 @@ public class Main {
 
                 break;
 
-            case "global-log":
-                for (String commitRelPath : DirUtils.helpFindRelPathSetInGivenDir(COMMITS)) {
-                    Commit curCommit = (Commit) DirUtils.readGivenFileInGivenDir(commitRelPath, COMMITS, Commit.class);
-                    curCommit.printThisLog();
-                }
-                break;
+
 
             case "find":
                 validArg(args, 2);
@@ -225,36 +235,47 @@ public class Main {
                 break;
 
 
+            default:
+                System.out.println("No command with that name exists.");
+                System.exit(0);
+
+
         }
     }
 
 
         static void validArg (String[]args,int n){
             if (args.length != n) {
-                throw new RuntimeException("Invalid number of arguments");
-            }
-        }
-
-        static String matchCommitId (Set<String> set, String prefix){
-            String matched = null;
-            for (String str : set) {
-                if (str.startsWith(prefix)) {
-                    if (matched != null) {
-                        // 如果已经找到一个匹配项，再找到一个，返回null
-                        return null;
-                    }
-                    matched = str;
-                }
-            }
-
-            if (matched == null) {
-                System.out.println("No commit with that id exists.");
+                System.out.println("Incorrect operands.");
                 System.exit(0);
             }
-
-            return matched;
-
         }
+
+        static String matchCommitId (Set<String> set, String prefix) {
+            Set<String> matchSet = new HashSet<>();
+            for (String str : set) {
+                if (str.startsWith(prefix)) {
+                    matchSet.add(str);
+                }
+            }
+            if (matchSet.size() == 0) {
+                System.out.println("No commit with that id exists.");
+                System.exit(0);
+            } else if (matchSet.size() >= 2) {
+                System.out.println("Too many commits with that id exists.");
+                System.exit(0);
+            } else {
+                String element = matchSet.iterator().next(); // 获取唯一的元素
+                return element;
+            }
+            return null;
+        }
+
+
+
+
+
+
 
 
 }

@@ -2,7 +2,7 @@ package gitlet;
 
 
 import java.io.File;
-import java.util.Set;
+import java.util.*;
 
 import static gitlet.Repository.*;
 import static gitlet.Utils.*;
@@ -10,9 +10,9 @@ import static gitlet.Utils.*;
 public class BranchUtils {
 
     static Commit getHeadCommit() {
-
-        String shaOfBranch = readContentsAsString(join(BRANCHES, getHeadBranch()));
-        return (Commit) DirUtils.readGivenFileInGivenDir(shaOfBranch, COMMITS, Commit.class);
+        String headBranch = getHeadBranch();
+        HashMap<String, Commit> branchMap = readObject(BRANCHES, HashMap.class);
+        return branchMap.get(headBranch);
     }
 
     static String getHeadBranch() {
@@ -25,39 +25,41 @@ public class BranchUtils {
     }
 
     static void makeBranch(String branchName, Commit commit) {
-        File branchWholeAddress = join(BRANCHES, branchName);
-        if (branchWholeAddress.exists()) {
+        HashMap<String, Commit> branchMap = readObject(BRANCHES, HashMap.class);
+        if (branchMap.containsKey(branchName)) {
             System.out.println("A branch with that name already exists.");
+            return;
         } else {
-            try {
-                branchWholeAddress.createNewFile();
-            } catch (Exception ignore) {
+            branchMap.put(branchName, commit);
 
-            }
-            writeContents(branchWholeAddress, commit.sha());
         }
+        writeObject(BRANCHES, branchMap);
+
+
     }
 
     static void updateBranch(String branchName, Commit commit) {
-        File branchWholeAddress = join(BRANCHES, branchName);
-        writeContents(branchWholeAddress, commit.sha());
-
+        HashMap<String, Commit> branchMap = readObject(BRANCHES, HashMap.class);
+        branchMap.put(branchName, commit);
+        writeObject(BRANCHES, branchMap);
     }
 
     static Commit findBranch(String branchName) {
-        String shaOfCommit = readContentsAsString(join(BRANCHES, branchName));
-        return (Commit) DirUtils.readGivenFileInGivenDir(shaOfCommit, COMMITS, Commit.class);
+        HashMap<String, Commit> branchMap = readObject(BRANCHES, HashMap.class);
+        return branchMap.get(branchName);
     }
 
-    static void printHeadBranch() {
-        System.out.println("*" + getHeadBranch());
-    }
-
-    static void printOtherBranch() {
-        Set<String> branchNames = DirUtils.helpFindRelPathSetInGivenDir(BRANCHES);
-        branchNames.remove(getHeadBranch());
-        for (String name: branchNames) {
-            System.out.println(name);
+    static void printBranchInOrder() {
+        String headBranch = getHeadBranch();
+        List<String> list = new ArrayList<>(readObject(BRANCHES, HashMap.class).keySet()); // 将 Set 转换为 List
+        Collections.sort(list); // 按字典顺序排序
+        // 输出排序后的 List
+        for (String s : list) {
+            if (s.equals(headBranch)) {
+                System.out.println("*" + s);
+            } else {
+                System.out.println(s);
+            }
         }
     }
 
