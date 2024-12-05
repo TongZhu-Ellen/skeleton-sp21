@@ -85,7 +85,7 @@ public class Repository {
         Set<String> filesInOldBranchHead = oldBranchHead.nameShaMap.keySet();
         Set<String> filesInCWD = DirUtils.helpFindRelPathSetInGivenDir(CWD);
         for (String name: filesInCWD) {
-            if (!filesInOldBranchHead.contains(name) && newBranchHead.nameShaMap.containsKey(name) && (sha1(DirUtils.readGivenFileInGivenDir(name, CWD)).equals(sha1(newBranchHead.getContent(name))))) {
+            if (!filesInOldBranchHead.contains(name) && newBranchHead.nameShaMap.containsKey(name) && !sha1(DirUtils.readGivenFileInGivenDir(name, CWD)).equals(sha1(newBranchHead.getContent(name)))) {
                 System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
                 return;
             }

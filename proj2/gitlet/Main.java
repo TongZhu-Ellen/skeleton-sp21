@@ -23,10 +23,12 @@ public class Main {
      *  <COMMAND> <OPERAND1> <OPERAND2> ...
      */
     public static void main(String[] args) {
-        if (args == null) {
+        if (args == null || args.length == 0 || args[0] == null) {
             System.out.println("Please enter a command.");
             System.exit(0);
         }
+
+
         String firstArg = args[0];
         Set<String> set = new HashSet<>(List.of("add", "commit", "rm", "log", "global-log", "status", "find", "checkout", "branch", "rm-branch", "reset", "merge"));
         if (set.contains(firstArg) && (!GITLET_DIR.exists())) {
