@@ -132,7 +132,7 @@ public class Main {
                         break;
                     }
                     Commit newBranchHead = findBranch(branchName);
-                    helpCheckOutCommit(newBranchHead);
+                    Repository.helpCheckOutCommit(newBranchHead);
                     headThisBranch(branchName);
                 }
 
@@ -235,7 +235,7 @@ public class Main {
 
 
             default:
-                System.out.println("Incorrect operands");
+                System.out.println("Incorrect operands.");
                 System.exit(0);
 
 
