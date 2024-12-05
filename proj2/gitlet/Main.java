@@ -153,6 +153,7 @@ public class Main {
                 validArg(args, 2);
                 String branchName = args[1];
                 BranchUtils.makeBranch(branchName, getHeadCommit());
+                break;
 
 
             case "rm-branch":
@@ -167,6 +168,7 @@ public class Main {
                     branchMap.remove(branchToBeRemoved);
                     writeObject(BRANCHES, branchMap);
                 }
+                break;
 
 
             case "log":
