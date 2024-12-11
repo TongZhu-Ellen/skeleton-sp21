@@ -86,6 +86,9 @@ public class Main {
                     newHeadComm.putNameSha(name2, sha1(content));
                 }
 
+                newHeadComm.save();
+                MyUtils.updateBranchWithHead(MyUtils.getHeadBranchName(), newHeadComm);
+
                 MyUtils.addStageClear();
                 break;
 

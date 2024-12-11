@@ -120,6 +120,12 @@ class MyUtils {
         writeObject(BRANCH_MAP, branchMap);
     }
 
+    static void updateBranchWithHead(String branchName, Commit commit) {
+        HashMap<String, Commit> branchMap = readObject(BRANCH_MAP, HashMap.class);
+        branchMap.put(branchName, commit);
+        writeObject(BRANCH_MAP, branchMap);
+    }
+
     static Commit getBranchHead(String branchName) {
         HashMap<String, Commit> branchMap = readObject(BRANCH_MAP, HashMap.class);
         return branchMap.get(branchName);
