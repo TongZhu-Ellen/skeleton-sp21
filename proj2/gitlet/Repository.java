@@ -2,10 +2,9 @@ package gitlet;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedList;
 
-import static gitlet.BranchUtils.getHeadCommit;
+
 
 import static gitlet.Utils.*;
 
@@ -35,19 +34,16 @@ public class Repository {
      */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
 
-
-    public static final File ADD_STAGE = join(GITLET_DIR, "stage_for_addition");
-    public static final File DEL_SET = join(GITLET_DIR, "stage_for_deletion");
-
-    public static final File COMMITS = join(GITLET_DIR, "commits");
+    public static final File COMMIT_DIR = join(GITLET_DIR, "commit_dir");
 
 
-    public static final File BRANCHES = join(GITLET_DIR, "branches");
-    public static final File HEAD = join(GITLET_DIR, "head");
+    public static final File ADD_STAGE = join(GITLET_DIR, "add_stage");
+    public static final File DEL_LIST = join(GITLET_DIR, "del_list");
 
+    public static final File BLOB_DIR = join(GITLET_DIR, "blobs");
 
-
-    public static final File BLOBS = join(GITLET_DIR, "blobs"); // this is a dir;
+    public static final File HEAD_BRANCH = join(GITLET_DIR, "head_branch");
+    public static final File BRANCH_MAP = join(GITLET_DIR, "branch_map");
 
 
     // this is function that sets up files and dirs;
@@ -55,59 +51,21 @@ public class Repository {
     static void setDirs() {
         try {
             GITLET_DIR.mkdir();
-            COMMITS.mkdir();
-            HEAD.createNewFile();
-            BRANCHES.createNewFile();
-            writeObject(BRANCHES, new HashMap<String, Commit>());
-            BLOBS.mkdir();
+            COMMIT_DIR.mkdir();
             ADD_STAGE.mkdir();
-            DEL_SET.createNewFile();
-            writeObject(DEL_SET, new HashSet<String>());
-        } catch (Exception ignore) {
+            DEL_LIST.createNewFile();
+            writeObject(DEL_LIST, new LinkedList<String>());
+            BLOB_DIR.mkdir();
+            HEAD_BRANCH.createNewFile();
+            BRANCH_MAP.createNewFile();
+            writeObject(BRANCH_MAP, new HashMap<String, Commit>());
 
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
-
-
-    static void helpCheckoutSingleFileInGivenCommit(String name, Commit goalCommit) {
-        Set<String> filesInGoalCommit = goalCommit.nameShaMap.keySet();
-        if (!filesInGoalCommit.contains(name)) {
-            System.out.println("File does not exist in that commit.");
-            return;
-        }
-        byte[] content = goalCommit.getContent(name);
-        DirUtils.writeGivenContentInGivenDirWithName(content, CWD, name);
-    }
-
-    static void helpCheckOutCommit(Commit newBranchHead) {
-        Commit oldBranchHead = getHeadCommit();
-        Set<String> filesInNewBranchHead = newBranchHead.nameShaMap.keySet();
-        Set<String> filesInOldBranchHead = oldBranchHead.nameShaMap.keySet();
-        Set<String> filesInCWD = DirUtils.helpFindRelPathSetInGivenDir(CWD);
-        for (String name: filesInCWD) {
-            if (!filesInOldBranchHead.contains(name) && newBranchHead.nameShaMap.containsKey(name) && !sha1(DirUtils.readGivenFileInGivenDir(name, CWD)).equals(sha1(newBranchHead.getContent(name)))) {
-                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
-                return;
-            }
-        }
-        for (String name: filesInNewBranchHead) {
-            byte[] content = newBranchHead.getContent(name);
-            DirUtils.writeGivenContentInGivenDirWithName(content, CWD, name);
-        }
-        for (String name: filesInOldBranchHead) {
-            if (!filesInNewBranchHead.contains(name)) {
-                DirUtils.tryRemoveGivenFileFromGivenDir(name, CWD);
-            }
-        }
-        DirUtils.clearDir(ADD_STAGE);
-        DelSet.clear();
-    }
-
-
-
-
-
-
 
 
 
