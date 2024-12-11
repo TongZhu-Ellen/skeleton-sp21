@@ -2,9 +2,9 @@ package gitlet;
 
 import java.io.File;
 
-import java.util.HashMap;
+
 import java.util.HashSet;
-import java.util.List;
+
 import java.util.Set;
 
 import static gitlet.Repository.*;
@@ -62,12 +62,12 @@ public class Main {
                 break;
 
             case "commit":
-                if (MyUtils.addStageEmpty() && MyUtils.delListEmpty()) {
+                if (MyUtils.getAddStage().size() + MyUtils.getDelSet().size() == 0) {
                     System.out.println("No changes added to the commit.");
                     System.exit(0);
                 }
                 validArgs(args,2);
-                if (args[1].isEmpty()) {
+                if (args[1].equals("")) {
                     System.out.println("Please enter a commit message.");
                     System.exit(0);
                 }
@@ -79,11 +79,25 @@ public class Main {
                     newHeadComm.putNameSha(name1, oldHeadComm.getSha(name1));
                 }
 
-                for (String name2: relPathSet(ADD_STAGE)) {
+                for (String name2: MyUtils.getAddStage()) {
                     byte[] content = MyUtils.addStageGetContentFromName(name2);
                     MyUtils.blobDirAddCont(content);
                     newHeadComm.putNameSha(name2, sha1(content));
                 }
+
+                MyUtils.addStageClear();
+                break;
+
+            case "checkout":
+                if ((args.length == 3) && (args[1].equals("--"))) {
+                    Repository.checkOutFile(args[2], MyUtils.getHeadCommit());
+                    return;
+                }
+                if ((args.length == 4) && (args[2].equals("--"))) {
+                    String matchedID = matchCommitId(MyUtils.getCommitIDs(), args[1]);
+                    Repository.checkOutFile(args[3], MyUtils.getCommitFromID(matchedID));
+                }
+
                 break;
 
             case "log":
@@ -113,16 +127,26 @@ public class Main {
         }
     }
 
-    static Set<String> relPathSet(File searchedDir) {
-        Set<String> relativePathsSet = new HashSet<>();
-        for (File file : searchedDir.listFiles()) {
-            if (file.getName().equals(".gitlet")) {
-                continue;
+
+
+    static String matchCommitId (Set<String> set, String prefix) {
+        Set<String> matchSet = new HashSet<>();
+        for (String str : set) {
+            if (str.startsWith(prefix)) {
+                matchSet.add(str);
             }
-            String relativePath = searchedDir.toPath().relativize(file.toPath()).toString();
-            relativePathsSet.add(relativePath);  // 添加到 set，自动去重
         }
-        return relativePathsSet;
+        if (matchSet.size() == 0) {
+            System.out.println("No commit with that id exists.");
+            System.exit(0);
+        } else if (matchSet.size() >= 2) {
+            System.out.println("Too many commits with that id exists.");
+            System.exit(0);
+        } else {
+            String element = matchSet.iterator().next(); // 获取唯一的元素
+            return element;
+        }
+        return null;
     }
 
 

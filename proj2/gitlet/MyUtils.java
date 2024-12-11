@@ -1,10 +1,8 @@
 package gitlet;
 
 import java.io.File;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+
+import java.util.*;
 
 import static gitlet.Repository.*;
 import static gitlet.Utils.*;
@@ -20,9 +18,7 @@ class MyUtils {
         return readContents(join(file, name));
     }
 
-    static Object readInFileNameObj(File file, String name, Class type) {
-        return readObject(join(file, name), type);
-    }
+
 
 
 
@@ -36,6 +32,10 @@ class MyUtils {
 
     static byte[] addStageGetContentFromName(String name) {
         return readInFileNameCont(ADD_STAGE, name);
+    }
+
+    static Set<String> getAddStage() {
+        return filesInDir(ADD_STAGE);
     }
 
 
@@ -57,26 +57,23 @@ class MyUtils {
 
 
 
-    // DEL_LIST
+    // DEL_Set
 
 
 
-    static void delListAddName(String name) {
-        LinkedList<String> del_list = readObject(DEL_LIST, LinkedList.class);
-        del_list.add(name);
-        writeObject(DEL_LIST, del_list);
+    static void delSetAddName(String name) {
+        HashSet<String> del_set = readObject(DEL_SET, HashSet.class);
+        del_set.add(name);
+        writeObject(DEL_SET, del_set);
     }
 
-    static List<String> delListGetList() {
-        return readObject(DEL_LIST, LinkedList.class);
+    static Set<String> getDelSet() {
+        return readObject(DEL_SET, HashSet.class);
     }
 
-    static boolean delListEmpty() {
-        return delListGetList().size() == 0;
-    }
 
     static void delListClear() {
-        writeObject(DEL_LIST, new LinkedList<String>());
+        writeObject(DEL_SET, new HashSet<String>());
     }
 
 
@@ -130,12 +127,35 @@ class MyUtils {
 
 
 
+    // COMMIT_DIR
+
+    static Set<String> getCommitIDs() {
+        return filesInDir(COMMIT_DIR);
+    }
+
+    static Commit getCommitFromID(String ID) {
+        return readObject(join(COMMIT_DIR, ID), Commit.class);
+    }
 
 
 
 
 
 
+
+
+
+    static Set<String> filesInDir(File searchedDir) {
+        Set<String> relativePathsSet = new HashSet<>();
+        for (File file : searchedDir.listFiles()) {
+            if (file.getName().equals(".gitlet")) {
+                continue;
+            }
+            String relativePath = searchedDir.toPath().relativize(file.toPath()).toString();
+            relativePathsSet.add(relativePath);  // 添加到 set，自动去重
+        }
+        return relativePathsSet;
+    }
 
 
 

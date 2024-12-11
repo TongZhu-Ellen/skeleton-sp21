@@ -2,8 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.LinkedList;
-
+import java.util.HashSet;
 
 
 import static gitlet.Utils.*;
@@ -38,7 +37,7 @@ public class Repository {
 
 
     public static final File ADD_STAGE = join(GITLET_DIR, "add_stage");
-    public static final File DEL_LIST = join(GITLET_DIR, "del_list");
+    public static final File DEL_SET = join(GITLET_DIR, "del_list");
 
     public static final File BLOB_DIR = join(GITLET_DIR, "blobs");
 
@@ -53,8 +52,8 @@ public class Repository {
             GITLET_DIR.mkdir();
             COMMIT_DIR.mkdir();
             ADD_STAGE.mkdir();
-            DEL_LIST.createNewFile();
-            writeObject(DEL_LIST, new LinkedList<String>());
+            DEL_SET.createNewFile();
+            writeObject(DEL_SET, new HashSet<String>());
             BLOB_DIR.mkdir();
             HEAD_BRANCH.createNewFile();
             BRANCH_MAP.createNewFile();
@@ -66,6 +65,23 @@ public class Repository {
         }
 
     }
+
+    static void checkOutFile(String name, Commit commit) {
+
+        if (!commit.fileSet().contains(name)) {
+            System.out.println("File does not exist in that commit. ");
+            System.exit(0);
+        }
+        byte[] cont = commit.getFileContent(name);
+        writeContents(join(CWD, name), cont);
+
+    }
+
+
+
+
+
+
 
 
 
