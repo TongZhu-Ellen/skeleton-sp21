@@ -23,7 +23,7 @@ public class Main {
      */
     public static void main(String[] args) {
 
-        if (args.length == 0) {
+        if (args == null || args.length == 0) {
             System.out.println("Please enter a command.");
             System.exit(0);
         }
@@ -54,7 +54,8 @@ public class Main {
                     System.exit(0);
                 }
                 byte[] curVerOfCont = readContents(fileInCWD);
-                if (sha1(curVerOfCont).equals(sha1(MyUtils.getHeadCommit().getFileContent(name)))) {
+
+                if (MyUtils.getHeadCommit().containsNameContent(name, curVerOfCont)) {
                     MyUtils.addStageTryRemove(name);
                 } else {
                     MyUtils.addStageAddNameContent(name, curVerOfCont);
@@ -94,7 +95,7 @@ public class Main {
                     return;
                 }
                 if ((args.length == 4) && (args[2].equals("--"))) {
-                    String matchedID = matchCommitId(MyUtils.getCommitIDs(), args[1]);
+                    String matchedID = matchByPrefix(MyUtils.getCommitIDs(), args[1]);
                     Repository.checkOutFile(args[3], MyUtils.getCommitFromID(matchedID));
                 }
 
@@ -129,7 +130,7 @@ public class Main {
 
 
 
-    static String matchCommitId (Set<String> set, String prefix) {
+    static String matchByPrefix (Set<String> set, String prefix) {
         Set<String> matchSet = new HashSet<>();
         for (String str : set) {
             if (str.startsWith(prefix)) {
