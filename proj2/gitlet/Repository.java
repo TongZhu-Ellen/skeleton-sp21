@@ -69,7 +69,7 @@ public class Repository {
     static void checkOutFile(String name, Commit commit) {
 
         if (!commit.fileSet().contains(name)) {
-            System.out.println("File does not exist in that commit. ");
+            System.out.println("File does not exist in that commit.");
             System.exit(0);
         }
         byte[] cont = commit.getFileContent(name);
