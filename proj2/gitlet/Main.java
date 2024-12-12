@@ -49,17 +49,22 @@ public class Main {
                 validArgs(args, 2);
                 String name = args[1];
                 File fileInCWD = join(CWD, name);
+
                 if (!fileInCWD.exists()) {
                     System.out.println("File does not exist.");
                     System.exit(0);
                 }
-                byte[] curVerOfCont = readContents(fileInCWD);
 
-                if (MyUtils.getHeadCommit().containsNameContent(name, curVerOfCont)) {
-                    MyUtils.addStageTryRemove(name);
-                } else {
-                    MyUtils.addStageAddNameContent(name, curVerOfCont);
-                }
+                MyUtils.addStageAddNameContent(name, readContents(fileInCWD));
+                MyUtils.delSetTryRemoveName(name);
+                break;
+
+            case "rm":
+                validArgs(args, 2);
+                join(CWD, args[1]).delete();
+
+                MyUtils.addStageTryRemove(args[1]);
+                MyUtils.delSetAddName(args[1]);
                 break;
 
             case "commit":
@@ -82,14 +87,19 @@ public class Main {
 
                 for (String name2: MyUtils.getAddStage()) {
                     byte[] content = MyUtils.addStageGetContentFromName(name2);
-                    MyUtils.blobDirAddCont(content);
+                    MyUtils.blobDirTryAddCont(content);
                     newHeadComm.putNameSha(name2, sha1(content));
+                }
+
+                for (String name3: MyUtils.getDelSet()) {
+                    newHeadComm.tryRemove(name3);
                 }
 
                 newHeadComm.save();
                 MyUtils.updateBranchWithHead(MyUtils.getHeadBranchName(), newHeadComm);
 
                 MyUtils.addStageClear();
+                MyUtils.delSetClear();
                 break;
 
             case "checkout":
@@ -107,6 +117,7 @@ public class Main {
             case "log":
                 validArgs(args, 1);
                 MyUtils.getHeadCommit().printLogFromThis();
+                break;
 
 
 

@@ -36,6 +36,10 @@ class Commit implements Serializable {
         this.nameShaMap.put(name, sha);
     }
 
+    void tryRemove(String name) {
+        this.nameShaMap.remove(name);
+    }
+
 
     String getSha(String name) {
         return this.nameShaMap.get(name);
@@ -55,15 +59,7 @@ class Commit implements Serializable {
         return Utils.sha1(serialize(this));
     }
 
-    boolean containsNameContent(String name, byte[] content) {
-        if (!this.fileSet().contains(name)) {
-            return false;
-        } else {
-            String shaGiven = sha1(content);
-            String shaOfUs = this.getSha(name);
-            return shaOfUs.equals(shaGiven);
-        }
-    }
+
 
 
 

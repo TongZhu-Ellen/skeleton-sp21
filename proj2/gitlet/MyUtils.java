@@ -60,19 +60,25 @@ class MyUtils {
     // DEL_Set
 
 
+    static HashSet<String> getDelSet() {
+        return readObject(DEL_SET, HashSet.class);
+    }
 
     static void delSetAddName(String name) {
-        HashSet<String> del_set = readObject(DEL_SET, HashSet.class);
+        HashSet<String> del_set = getDelSet();
         del_set.add(name);
         writeObject(DEL_SET, del_set);
     }
 
-    static Set<String> getDelSet() {
-        return readObject(DEL_SET, HashSet.class);
+    static void delSetTryRemoveName(String name) {
+        HashSet<String> del_set = getDelSet();
+        del_set.remove(name);
+        writeObject(DEL_SET, del_set);
     }
 
 
-    static void delListClear() {
+
+    static void delSetClear() {
         writeObject(DEL_SET, new HashSet<String>());
     }
 
@@ -80,8 +86,11 @@ class MyUtils {
     // BLOB_DIR
 
 
-    static void blobDirAddCont(byte[] content) {
-        saveInFileNameCont(BLOB_DIR, sha1(content), content);
+    static void blobDirTryAddCont(byte[] content) {
+        File file = join(BLOB_DIR, sha1(content));
+        if (!file.exists()) {
+            writeContents(file, content);
+        }
     }
 
     static byte[] blobDirGetCont(String sha) {
