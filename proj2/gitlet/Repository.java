@@ -1,9 +1,7 @@
 package gitlet;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 
 import static gitlet.Utils.*;
@@ -108,6 +106,32 @@ public class Repository {
 
 
     }
+
+
+    static void printSetInOrder(Set<String> set) {
+        List<String> list = new ArrayList<>(set); // 将 Set 转换为 List
+        Collections.sort(list); // 按字典顺序排序
+        // 输出排序后的 List
+        for (String s : list) {
+            System.out.println(s);
+        }
+    }
+
+
+    static void printBranchInOrder() {
+        String headBranch = MyUtils.getHeadBranchName();
+        List<String> list = new ArrayList<>(MyUtils.getBranches()); // 将 Set 转换为 List
+        Collections.sort(list); // 按字典顺序排序
+        // 输出排序后的 List
+        for (String s : list) {
+            if (s.equals(headBranch)) {
+                System.out.println("*" + s);
+            } else {
+                System.out.println(s);
+            }
+        }
+    }
+
 
 
 

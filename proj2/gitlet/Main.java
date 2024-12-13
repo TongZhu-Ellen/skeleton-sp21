@@ -161,6 +161,57 @@ public class Main {
                     MyUtils.getCommitFromID(ID).printThisLog();
                 }
 
+            case "find":
+                validArgs(args, 2);
+                String searchedMessage = args[1];
+                int matchedCount = 0;
+                for (String ID: MyUtils.getCommitIDs()) {
+                    Commit cm = MyUtils.getCommitFromID(ID);
+                    if (cm.message.contains(searchedMessage)) {
+                        System.out.println(ID);
+                        matchedCount += 1;
+                    }
+                }
+                if (matchedCount == 0) {
+                    System.out.println("Found no commit with that message.");
+                }
+
+                break;
+
+            case "status":
+                validArgs(args, 1);
+
+                System.out.println("=== Branches ===");
+                Repository.printBranchInOrder();
+                System.out.println("");
+
+
+
+                System.out.println("=== Staged Files ===");
+                Repository.printSetInOrder(MyUtils.getAddStage());
+                System.out.println("");
+
+
+
+
+                System.out.println("=== Removed Files ===");
+                Repository.printSetInOrder(MyUtils.getDelSet());
+                System.out.println("");
+
+
+
+
+                System.out.println("=== Modifications Not Staged For Commit ===");
+                System.out.println("");
+
+                System.out.println("=== Untracked Files ===");
+                System.out.println("");
+
+                break;
+
+
+
+
 
 
 
