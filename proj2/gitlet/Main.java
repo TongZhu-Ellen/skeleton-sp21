@@ -5,6 +5,7 @@ import java.io.File;
 
 import java.util.HashSet;
 
+import java.util.List;
 import java.util.Set;
 
 import static gitlet.Repository.*;
@@ -25,7 +26,12 @@ public class Main {
 
         if (args == null || args.length == 0) {
             System.out.println("Please enter a command.");
-            System.exit(0);
+            return;
+        }
+        Set<String> set = new HashSet<>(List.of("add", "commit", "rm", "log", "global-log", "status", "find", "checkout", "branch", "rm-branch", "reset", "merge"));
+        if (set.contains(args[1]) && (!GITLET_DIR.exists())) {
+            System.out.println("Not in an initialized Gitlet directory.");
+            return;
         }
 
         switch(args[0]) {
@@ -150,7 +156,7 @@ public class Main {
                 String matchedID = matchByPrefix(MyUtils.getCommitIDs(), args[1]);
                 Commit commit = MyUtils.getCommitFromID(matchedID);
                 Repository.checkOutCommit(commit);
-                MyUtils.makeBranchWithHead(MyUtils.getHeadBranchName(), commit);
+                MyUtils.updateBranchWithHead(MyUtils.getHeadBranchName(), commit);
                 break;
 
             case "branch":
@@ -169,6 +175,7 @@ public class Main {
                     System.exit(0);
                 }
                 MyUtils.rmBranch(args[1]);
+                break;
 
 
             case "log":
@@ -181,6 +188,7 @@ public class Main {
                 for (String ID: MyUtils.filesInDir(COMMIT_DIR)) {
                     MyUtils.getCommitFromID(ID).printThisLog();
                 }
+                break;
 
             case "find":
                 validArgs(args, 2);
