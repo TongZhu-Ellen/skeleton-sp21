@@ -43,10 +43,7 @@ class MyUtils {
         join(ADD_STAGE, name).delete();
     }
 
-    static boolean addStageEmpty() {
-        File[] files = ADD_STAGE.listFiles();
-        return files.length == 0;
-    }
+
 
     static void addStageClear() {
         File[] files = ADD_STAGE.listFiles();
@@ -75,7 +72,6 @@ class MyUtils {
         del_set.remove(name);
         writeObject(DEL_SET, del_set);
     }
-
 
 
     static void delSetClear() {

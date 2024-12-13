@@ -55,16 +55,34 @@ public class Main {
                     System.exit(0);
                 }
 
-                MyUtils.addStageAddNameContent(name, readContents(fileInCWD));
+                byte[] curCont = readContents(fileInCWD);
+                byte[] headCont = MyUtils.getHeadCommit().getFileContent(name);
+                if (sha1(curCont).equals(sha1(headCont))) {
+                    MyUtils.addStageTryRemove(name);
+                } else {
+                    MyUtils.addStageAddNameContent(name, curCont);
+                }
+
                 MyUtils.delSetTryRemoveName(name);
                 break;
 
             case "rm":
                 validArgs(args, 2);
-                join(CWD, args[1]).delete();
+                int count = 0;
 
-                MyUtils.addStageTryRemove(args[1]);
-                MyUtils.delSetAddName(args[1]);
+                if (MyUtils.getAddStage().contains(args[1])) {
+                    MyUtils.addStageTryRemove(args[1]);
+                    count += 1;
+                }
+                if (MyUtils.getHeadCommit().fileSet().contains(args[1])) {
+                    MyUtils.delSetAddName(args[1]);
+                    join(CWD, args[1]).delete();
+                    count += 1;
+                }
+                if (count == 0) {
+                    System.out.println("No reason to remove the file.");
+                }
+
                 break;
 
             case "commit":

@@ -36,7 +36,7 @@ public class Repository {
 
 
     public static final File ADD_STAGE = join(GITLET_DIR, "add_stage");
-    public static final File DEL_SET = join(GITLET_DIR, "del_list");
+    public static final File DEL_SET = join(GITLET_DIR, "del_set");
 
     public static final File BLOB_DIR = join(GITLET_DIR, "blobs");
 
