@@ -139,6 +139,7 @@ public class Main {
                         System.exit(0);
                     }
                     Repository.checkOutCommit(MyUtils.getBranchHead(branchName));
+                    MyUtils.setHeadBranchWithName(branchName);
                 } else {
                     System.out.println("Incorrect operands.");
                 }
@@ -147,7 +148,9 @@ public class Main {
             case "reset":
                 validArgs(args, 2);
                 String matchedID = matchByPrefix(MyUtils.getCommitIDs(), args[1]);
-                Repository.checkOutCommit(MyUtils.getCommitFromID(matchedID));
+                Commit cm = MyUtils.getCommitFromID(matchedID);
+                Repository.checkOutCommit(cm);
+                MyUtils.makeBranchWithHead(MyUtils.getHeadBranchName(), cm);
                 break;
 
             case "branch":

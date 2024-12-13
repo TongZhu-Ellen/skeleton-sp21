@@ -101,9 +101,6 @@ public class Repository {
        MyUtils.addStageClear();
        MyUtils.delSetClear();
 
-       MyUtils.updateBranchWithHead(MyUtils.getHeadBranchName(), newHead);
-
-
 
     }
 
