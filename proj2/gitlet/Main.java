@@ -29,7 +29,7 @@ public class Main {
             return;
         }
         Set<String> set = new HashSet<>(List.of("add", "commit", "rm", "log", "global-log", "status", "find", "checkout", "branch", "rm-branch", "reset", "merge"));
-        if (set.contains(args[1]) && (!GITLET_DIR.exists())) {
+        if (set.contains(args[0]) && (!GITLET_DIR.exists())) {
             System.out.println("Not in an initialized Gitlet directory.");
             return;
         }
