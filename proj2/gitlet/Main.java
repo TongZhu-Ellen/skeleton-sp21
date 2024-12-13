@@ -103,22 +103,63 @@ public class Main {
                 break;
 
             case "checkout":
-                if ((args.length == 3) && (args[1].equals("--"))) {
+                if (args.length == 3 && args[1].equals("--")) {
                     Repository.checkOutFile(args[2], MyUtils.getHeadCommit());
-                    return;
-                }
-                if ((args.length == 4) && (args[2].equals("--"))) {
+
+                } else if (args.length == 4 && args[2].equals("--")) {
                     String matchedID = matchByPrefix(MyUtils.getCommitIDs(), args[1]);
                     Repository.checkOutFile(args[3], MyUtils.getCommitFromID(matchedID));
-                }
 
+                } else if (args.length == 2) {
+                    String branchName = args[1];
+                    if (!MyUtils.getBranches().contains(branchName)) {
+                        System.out.println("No such branch exists.");
+                        System.exit(0);
+                    }
+                    if (MyUtils.getHeadBranchName().equals(branchName)) {
+                        System.out.println("No need to checkout the current branch.");
+                        System.exit(0);
+                    }
+                    Repository.checkOutCommit(MyUtils.getBranchHead(branchName));
+                } else {
+                    System.out.println("Incorrect operands.");
+                }
                 break;
+
+            case "reset":
+                validArgs(args, 2);
+                String matchedID = matchByPrefix(MyUtils.getCommitIDs(), args[1]);
+                Repository.checkOutCommit(MyUtils.getCommitFromID(matchedID));
+                break;
+
+            case "branch":
+                validArgs(args, 2);
+                MyUtils.makeBranchWithHead(args[1], MyUtils.getHeadCommit());
+                break;
+
+            case "rm-branch":
+                validArgs(args, 2);
+                if (!MyUtils.getBranches().contains(args[1])) {
+                    System.out.println("A branch with that name does not exist.");
+                    System.exit(0);
+                }
+                if (MyUtils.getHeadBranchName().equals(args[1])) {
+                    System.out.println("Cannot remove the current branch.");
+                    System.exit(0);
+                }
+                MyUtils.rmBranch(args[1]);
+
 
             case "log":
                 validArgs(args, 1);
                 MyUtils.getHeadCommit().printLogFromThis();
                 break;
 
+            case "global-log":
+                validArgs(args, 1);
+                for (String ID: MyUtils.filesInDir(COMMIT_DIR)) {
+                    MyUtils.getCommitFromID(ID).printThisLog();
+                }
 
 
 

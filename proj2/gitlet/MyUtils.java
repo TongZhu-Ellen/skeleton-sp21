@@ -135,10 +135,24 @@ class MyUtils {
         writeObject(BRANCH_MAP, branchMap);
     }
 
+    static void rmBranch(String branchName) {
+        HashMap<String, Commit> branchMap = readObject(BRANCH_MAP, HashMap.class);
+        branchMap.remove(branchName);
+        writeObject(BRANCH_MAP, branchMap);
+    }
+
     static Commit getBranchHead(String branchName) {
         HashMap<String, Commit> branchMap = readObject(BRANCH_MAP, HashMap.class);
         return branchMap.get(branchName);
     }
+
+
+    static Set<String> getBranches() {
+        HashMap<String, Commit> branchMap = readObject(BRANCH_MAP, HashMap.class);
+        return branchMap.keySet();
+    }
+
+
 
 
 

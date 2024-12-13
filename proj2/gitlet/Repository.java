@@ -3,6 +3,7 @@ package gitlet;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
 
 import static gitlet.Utils.*;
@@ -74,6 +75,37 @@ public class Repository {
         }
         byte[] cont = commit.getFileContent(name);
         writeContents(join(CWD, name), cont);
+
+    }
+
+    static void checkOutCommit(Commit newHead) {
+        Commit oldHead = MyUtils.getHeadCommit();
+       Set<String> filesInNew = newHead.fileSet();
+       Set<String> filesInOld = oldHead.fileSet();
+       Set<String> filesInCWD = MyUtils.filesInDir(CWD);
+
+       for (String file: filesInCWD) {
+           if (!filesInOld.contains(file) && filesInNew.contains(file) && !sha1(MyUtils.readInFileNameCont(CWD, file)).equals(sha1(newHead.getFileContent(file)))) {
+               System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+               System.exit(0);
+           }
+       }
+
+       for (String file: filesInOld) {
+           join(CWD, file).delete();
+       }
+
+       for (String file: filesInNew) {
+           byte[] content = newHead.getFileContent(file);
+           MyUtils.saveInFileNameCont(CWD, file, content);
+       }
+
+       MyUtils.addStageClear();
+       MyUtils.delSetClear();
+
+       MyUtils.updateBranchWithHead(MyUtils.getHeadBranchName(), newHead);
+
+
 
     }
 
