@@ -148,9 +148,9 @@ public class Main {
             case "reset":
                 validArgs(args, 2);
                 String matchedID = matchByPrefix(MyUtils.getCommitIDs(), args[1]);
-                Commit cm = MyUtils.getCommitFromID(matchedID);
-                Repository.checkOutCommit(cm);
-                MyUtils.makeBranchWithHead(MyUtils.getHeadBranchName(), cm);
+                Commit commit = MyUtils.getCommitFromID(matchedID);
+                Repository.checkOutCommit(commit);
+                MyUtils.makeBranchWithHead(MyUtils.getHeadBranchName(), commit);
                 break;
 
             case "branch":
