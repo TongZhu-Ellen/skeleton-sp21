@@ -43,7 +43,7 @@ public class Main {
                     System.exit(0);
 
                 }
-                Repository.setDirs();
+                setDirs();
                 Commit initialCommit = new Commit("initial commit", null);
                 initialCommit.save();
                 MyUtils.makeBranchWithHead("master", initialCommit);
@@ -64,24 +64,24 @@ public class Main {
                 byte[] curCont = readContents(fileInCWD);
                 Commit headCommit = MyUtils.getHeadCommit();
                 if (headCommit.fileSet().contains(name) && sha1(curCont).equals(sha1(headCommit.getFileContent(name)))) {
-                    MyUtils.addStageTryRemove(name);
+                    AddStage.tryRemove(name);
                 } else {
-                    MyUtils.addStageAddNameContent(name, curCont);
+                    AddStage.putNameCont(name, curCont);
                 }
 
-                MyUtils.delSetTryRemoveName(name);
+                DelSet.tryRemove(name);
                 break;
 
             case "rm":
                 validArgs(args, 2);
                 int count = 0;
 
-                if (MyUtils.getAddStage().contains(args[1])) {
-                    MyUtils.addStageTryRemove(args[1]);
+                if (AddStage.setOfFileNames().contains(args[1])) {
+                    AddStage.tryRemove(args[1]);
                     count += 1;
                 }
                 if (MyUtils.getHeadCommit().fileSet().contains(args[1])) {
-                    MyUtils.delSetAddName(args[1]);
+                    DelSet.add(args[1]);
                     join(CWD, args[1]).delete();
                     count += 1;
                 }
@@ -92,7 +92,7 @@ public class Main {
                 break;
 
             case "commit":
-                if (MyUtils.getAddStage().size() + MyUtils.getDelSet().size() == 0) {
+                if (AddStage.setOfFileNames().size() + DelSet.setOfFileNames().size() == 0) {
                     System.out.println("No changes added to the commit.");
                     System.exit(0);
                 }
@@ -109,30 +109,30 @@ public class Main {
                     newHeadComm.putNameSha(name1, oldHeadComm.getSha(name1));
                 }
 
-                for (String name2: MyUtils.getAddStage()) {
-                    byte[] content = MyUtils.addStageGetContentFromName(name2);
+                for (String name2: AddStage.setOfFileNames()) {
+                    byte[] content = AddStage.getContent(name2);
                     MyUtils.blobDirTryAddCont(content);
                     newHeadComm.putNameSha(name2, sha1(content));
                 }
 
-                for (String name3: MyUtils.getDelSet()) {
+                for (String name3: DelSet.setOfFileNames()) {
                     newHeadComm.tryRemove(name3);
                 }
 
                 newHeadComm.save();
                 MyUtils.updateBranchWithHead(MyUtils.getHeadBranchName(), newHeadComm);
 
-                MyUtils.addStageClear();
-                MyUtils.delSetClear();
+                AddStage.clear();
+                DelSet.clear();
                 break;
 
             case "checkout":
                 if (args.length == 3 && args[1].equals("--")) {
-                    Repository.checkOutFile(args[2], MyUtils.getHeadCommit());
+                    checkOutFile(args[2], MyUtils.getHeadCommit());
 
                 } else if (args.length == 4 && args[2].equals("--")) {
                     String matchedID = matchByPrefix(MyUtils.getCommitIDs(), args[1]);
-                    Repository.checkOutFile(args[3], MyUtils.getCommitFromID(matchedID));
+                    checkOutFile(args[3], MyUtils.getCommitFromID(matchedID));
 
                 } else if (args.length == 2) {
                     String branchName = args[1];
@@ -144,7 +144,7 @@ public class Main {
                         System.out.println("No need to checkout the current branch.");
                         System.exit(0);
                     }
-                    Repository.checkOutCommit(MyUtils.getBranchHead(branchName));
+                    checkOutCommit(MyUtils.getBranchHead(branchName));
                     MyUtils.setHeadBranchWithName(branchName);
                 } else {
                     System.out.println("Incorrect operands.");
@@ -155,7 +155,7 @@ public class Main {
                 validArgs(args, 2);
                 String matchedID = matchByPrefix(MyUtils.getCommitIDs(), args[1]);
                 Commit commit = MyUtils.getCommitFromID(matchedID);
-                Repository.checkOutCommit(commit);
+                checkOutCommit(commit);
                 MyUtils.updateBranchWithHead(MyUtils.getHeadBranchName(), commit);
                 break;
 
@@ -211,20 +211,20 @@ public class Main {
                 validArgs(args, 1);
 
                 System.out.println("=== Branches ===");
-                Repository.printBranchInOrder();
+                printBranchInOrder();
                 System.out.println("");
 
 
 
                 System.out.println("=== Staged Files ===");
-                Repository.printSetInOrder(MyUtils.getAddStage());
+                printSetInOrder(AddStage.setOfFileNames());
                 System.out.println("");
 
 
 
 
                 System.out.println("=== Removed Files ===");
-                Repository.printSetInOrder(MyUtils.getDelSet());
+                printSetInOrder(DelSet.setOfFileNames());
                 System.out.println("");
 
 

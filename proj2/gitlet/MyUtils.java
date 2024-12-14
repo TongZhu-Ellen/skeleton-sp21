@@ -22,63 +22,6 @@ class MyUtils {
 
 
 
-
-    // ADD_STAGE
-
-
-    static void addStageAddNameContent(String name, byte[] content) {
-        saveInFileNameCont(ADD_STAGE, name, content);
-    }
-
-    static byte[] addStageGetContentFromName(String name) {
-        return readInFileNameCont(ADD_STAGE, name);
-    }
-
-    static Set<String> getAddStage() {
-        return filesInDir(ADD_STAGE);
-    }
-
-
-    static void addStageTryRemove(String name) {
-        join(ADD_STAGE, name).delete();
-    }
-
-
-
-    static void addStageClear() {
-        File[] files = ADD_STAGE.listFiles();
-        for (File file: files) {
-            file.delete();
-        }
-    }
-
-
-
-    // DEL_Set
-
-
-    static HashSet<String> getDelSet() {
-        return readObject(DEL_SET, HashSet.class);
-    }
-
-    static void delSetAddName(String name) {
-        HashSet<String> del_set = getDelSet();
-        del_set.add(name);
-        writeObject(DEL_SET, del_set);
-    }
-
-    static void delSetTryRemoveName(String name) {
-        HashSet<String> del_set = getDelSet();
-        del_set.remove(name);
-        writeObject(DEL_SET, del_set);
-    }
-
-
-    static void delSetClear() {
-        writeObject(DEL_SET, new HashSet<String>());
-    }
-
-
     // BLOB_DIR
 
 

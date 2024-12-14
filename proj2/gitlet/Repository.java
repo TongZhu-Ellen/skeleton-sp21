@@ -98,7 +98,7 @@ public class Repository {
            MyUtils.saveInFileNameCont(CWD, file, content);
        }
 
-       MyUtils.addStageClear();
+       AddStage.clear();
        MyUtils.delSetClear();
 
 
