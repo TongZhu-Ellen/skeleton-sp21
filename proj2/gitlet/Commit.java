@@ -48,7 +48,7 @@ class Commit implements Serializable {
 
     byte[] getFileContent(String name) {
         String sha = this.getSha(name);
-        return MyUtils.blobDirGetCont(sha);
+        return BlobDir.getCont(sha);
     }
 
     void save() {

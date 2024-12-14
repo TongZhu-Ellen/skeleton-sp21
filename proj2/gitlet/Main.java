@@ -111,7 +111,7 @@ public class Main {
 
                 for (String name2: AddStage.setOfFileNames()) {
                     byte[] content = AddStage.getContent(name2);
-                    MyUtils.blobDirTryAddCont(content);
+                    BlobDir.tryAddCont(content);
                     newHeadComm.putNameSha(name2, sha1(content));
                 }
 

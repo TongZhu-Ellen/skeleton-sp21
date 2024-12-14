@@ -22,19 +22,6 @@ class MyUtils {
 
 
 
-    // BLOB_DIR
-
-
-    static void blobDirTryAddCont(byte[] content) {
-        File file = join(BLOB_DIR, sha1(content));
-        if (!file.exists()) {
-            writeContents(file, content);
-        }
-    }
-
-    static byte[] blobDirGetCont(String sha) {
-        return readInFileNameCont(BLOB_DIR, sha);
-    }
 
 
     // HEAD_BRANCH

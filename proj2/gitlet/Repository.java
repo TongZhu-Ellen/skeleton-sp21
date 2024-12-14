@@ -99,7 +99,7 @@ public class Repository {
        }
 
        AddStage.clear();
-       MyUtils.delSetClear();
+       DelSet.clear();
 
 
     }
