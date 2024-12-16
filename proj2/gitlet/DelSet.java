@@ -26,6 +26,10 @@ public class DelSet {
         writeObject(DEL_SET, del_set);
     }
 
+    static boolean isEmpty() {
+        return setOfFileNames().size() == 0;
+    }
+
 
     static void clear() {
         writeObject(DEL_SET, new HashSet<String>());

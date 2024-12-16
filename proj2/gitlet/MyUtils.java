@@ -69,7 +69,13 @@ class MyUtils {
 
     static Commit getBranchHead(String branchName) {
         HashMap<String, Commit> branchMap = readObject(BRANCH_MAP, HashMap.class);
-        return branchMap.get(branchName);
+        if (!branchMap.containsKey(branchName)) {
+            System.out.println("A branch with that name does not exist.");
+            System.exit(0);
+            return null;
+        } else {
+            return branchMap.get(branchName);
+        }
     }
 
 
@@ -77,6 +83,8 @@ class MyUtils {
         HashMap<String, Commit> branchMap = readObject(BRANCH_MAP, HashMap.class);
         return branchMap.keySet();
     }
+
+
 
 
 

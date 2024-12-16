@@ -1,6 +1,7 @@
 package gitlet;
 
 import java.io.Serializable;
+import java.lang.reflect.AnnotatedArrayType;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -13,6 +14,7 @@ class Commit implements Serializable {
     Date time;
     Map<String, String> nameShaMap;
     Commit parent;
+    Commit otherParent;
 
     Commit(String inputMsg, Commit inputParent) {
         this.message = inputMsg;
@@ -26,6 +28,7 @@ class Commit implements Serializable {
         this.nameShaMap = new HashMap<>();
 
         this.parent = inputParent;
+        this.otherParent = null;
     }
 
     Set<String> fileSet() {
@@ -58,6 +61,39 @@ class Commit implements Serializable {
     String sha() {
         return Utils.sha1(serialize(this));
     }
+
+
+    List<Commit> ancestersList() {
+
+        List<Commit> ancestorList = new LinkedList<>();
+        Queue<Commit> fringe = new LinkedList<>();
+        Set<Commit> marked = new HashSet<>();
+
+        fringe.add(this);
+        marked.add(this);
+        ancestorList.add(this);
+
+        while (!fringe.isEmpty()) {
+            Commit v = fringe.remove();
+            List<Commit> parOfV = new ArrayList<>();
+            if (v.parent != null) {
+                parOfV.add(v.parent);
+            }
+            if (v.otherParent != null) {
+                parOfV.add(v.otherParent);
+            }
+            for (Commit w : parOfV) {
+                if (!marked.contains(w)) {
+                    fringe.add(w);
+                    marked.add(w);
+                    ancestorList.add(w);
+                }
+            }
+        }
+        return ancestorList;
+    }
+
+
 
 
 

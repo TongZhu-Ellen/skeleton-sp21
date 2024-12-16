@@ -239,9 +239,33 @@ public class Main {
                 break;
 
 
+            case "merge":
+                if (!AddStage.isEmpty() || !DelSet.isEmpty()) {
+                    System.out.println("You have uncommitted changes.");
+                    System.exit(0);
+                }
+                Commit c1 = MyUtils.getBranchHead(args[1]);
+                Commit c2 = MyUtils.getHeadCommit();
+                if (c1.sha().equals(c2.sha())) {
+                    System.out.println("Cannot merge a branch with itself.");
+                    System.exit(0);
+                } else {
+                    Commit c3 = Repository.splitPoint(c1, c2);
+                    if (c3.sha().equals(c1.sha())) {
+                        System.out.println("Given branch is an ancestor of the current branch.");
+                        break;
+                    }
+                    if (c3.sha().equals(c2.sha())) {
+                        Repository.checkOutCommit(c1);
+                        System.out.println("Current branch fast-forwarded.");
+                        break;
+                    }
 
 
+                }
 
+
+                break;
 
 
 

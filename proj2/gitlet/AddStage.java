@@ -28,6 +28,10 @@ public class AddStage {
         join(ADD_STAGE, name).delete();
     }
 
+    static boolean isEmpty() {
+        return setOfFileNames().size() == 0;
+    }
+
 
 
     static void clear() {

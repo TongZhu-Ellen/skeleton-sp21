@@ -105,6 +105,18 @@ public class Repository {
     }
 
 
+    static Commit splitPoint(Commit c1, Commit c2) {
+        List<Commit> parent1 = c1.ancestersList();
+        Set<Commit> parent2 = new HashSet<>(c2.ancestersList());
+        for (Commit a1: parent1) {
+            if (parent2.contains(a1)) {
+                return a1;
+            }
+        }
+        return null;
+    }
+
+
     static void printSetInOrder(Set<String> set) {
         List<String> list = new ArrayList<>(set); // 将 Set 转换为 List
         Collections.sort(list); // 按字典顺序排序
