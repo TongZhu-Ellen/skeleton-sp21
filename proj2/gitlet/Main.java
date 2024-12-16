@@ -257,6 +257,7 @@ public class Main {
                     }
                     if (c3.sha().equals(c2.sha())) {
                         Repository.checkOutCommit(c1);
+                        MyUtils.setHeadBranchWithName(args[1]);
                         System.out.println("Current branch fast-forwarded.");
                         break;
                     }
