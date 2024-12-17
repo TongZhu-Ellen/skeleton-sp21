@@ -170,7 +170,7 @@ public class Repository {
             }
         }
 
-        Set<String> inEither = givenBranch.fileSet();
+        Set<String> inEither = new HashSet<>(givenBranch.fileSet());
         inEither.addAll(curBranch.fileSet());
         for (String file: inEither) {
             if (Commit.isModified(file, givenBranch, curBranch)) {
