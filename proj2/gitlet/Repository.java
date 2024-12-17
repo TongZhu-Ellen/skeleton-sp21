@@ -239,6 +239,10 @@ public class Repository {
         AddStage.clear();
         DelSet.clear();
 
+        if (conflict.size() != 0) {
+            System.out.println("Encountered a merge conflict.");
+        }
+
 
 
 
