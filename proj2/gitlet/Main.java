@@ -244,6 +244,7 @@ public class Main {
 
 
             case "merge":
+                validArgs(args, 2);
                 if (!AddStage.isEmpty() || !DelSet.isEmpty()) {
                     System.out.println("You have uncommitted changes.");
                     System.exit(0);

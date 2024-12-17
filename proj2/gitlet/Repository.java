@@ -192,8 +192,9 @@ public class Repository {
         }
 
         for (String file: useGiven) {
-            checkOutFile(file, givenBranch);
-            AddStage.putNameCont(file, givenBranch.tryGetContent(file));
+            byte[] cont = givenBranch.tryGetContent(file);
+            writeContents(join(CWD, file), cont);
+            AddStage.putNameCont(file, cont);
         }
 
         for (String file: toBeDel) {
@@ -239,7 +240,7 @@ public class Repository {
         AddStage.clear();
         DelSet.clear();
 
-        if (conflict.size() != 0) {
+        if (!conflict.isEmpty()) {
             System.out.println("Encountered a merge conflict.");
         }
 
