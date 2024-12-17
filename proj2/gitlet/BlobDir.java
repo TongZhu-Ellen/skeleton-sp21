@@ -19,7 +19,20 @@ public class BlobDir {
     }
 
     static byte[] getCont(String sha) {
-        return readInFileNameCont(BLOB_DIR, sha);
+        if (sha == null) {
+            return null;
+        } else {
+            return readInFileNameCont(BLOB_DIR, sha);
+        }
     }
+
+    static String getContAsString(String sha) {
+        if (sha == null) {
+            return "";
+        } else {
+            return readContentsAsString(join(BLOB_DIR, sha));
+        }
+    }
+
 
 }

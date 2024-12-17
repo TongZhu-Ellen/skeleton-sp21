@@ -63,7 +63,7 @@ public class Main {
 
                 byte[] curCont = readContents(fileInCWD);
                 Commit headCommit = MyUtils.getHeadCommit();
-                if (headCommit.fileSet().contains(name) && sha1(curCont).equals(sha1(headCommit.getFileContent(name)))) {
+                if (headCommit.fileSet().contains(name) && sha1(curCont).equals(sha1(headCommit.tryGetContent(name)))) {
                     AddStage.tryRemove(name);
                 } else {
                     AddStage.putNameCont(name, curCont);
@@ -102,11 +102,12 @@ public class Main {
                     System.exit(0);
                 }
 
+
                 Commit oldHeadComm = MyUtils.getHeadCommit();
                 Commit newHeadComm = new Commit(args[1], oldHeadComm);
 
                 for (String name1: oldHeadComm.fileSet()) {
-                    newHeadComm.putNameSha(name1, oldHeadComm.getSha(name1));
+                    newHeadComm.putNameSha(name1, oldHeadComm.tryGetSha(name1));
                 }
 
                 for (String name2: AddStage.setOfFileNames()) {
@@ -124,6 +125,9 @@ public class Main {
 
                 AddStage.clear();
                 DelSet.clear();
+
+
+
                 break;
 
             case "checkout":
@@ -250,17 +254,21 @@ public class Main {
                     System.out.println("Cannot merge a branch with itself.");
                     System.exit(0);
                 } else {
-                    Commit c3 = Repository.splitPoint(c1, c2);
+                    Commit c3 = splitPoint(c1, c2);
                     if (c3.sha().equals(c1.sha())) {
                         System.out.println("Given branch is an ancestor of the current branch.");
                         break;
                     }
                     if (c3.sha().equals(c2.sha())) {
-                        Repository.checkOutCommit(c1);
+                        checkOutCommit(c1);
                         MyUtils.setHeadBranchWithName(args[1]);
                         System.out.println("Current branch fast-forwarded.");
                         break;
                     }
+                    Repository.helpMerge(c1, c2, c3, args[1]);
+
+
+
 
 
                 }

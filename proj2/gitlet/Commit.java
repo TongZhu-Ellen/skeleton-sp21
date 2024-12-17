@@ -44,14 +44,27 @@ class Commit implements Serializable {
     }
 
 
-    String getSha(String name) {
-        return this.nameShaMap.get(name);
+    boolean contains(String name) {
+        return this.nameShaMap.keySet().contains(name);
     }
 
+    String tryGetSha(String name) {
+        return this.nameShaMap.getOrDefault(name, null);
+    }
 
-    byte[] getFileContent(String name) {
-        String sha = this.getSha(name);
+    byte[] tryGetContent(String name) {
+        String sha = this.tryGetSha(name);
         return BlobDir.getCont(sha);
+    }
+
+    String tryGetContentAsString(String name) {
+        String sha = this.tryGetSha(name);
+        return BlobDir.getContAsString(sha);
+    }
+
+ // ATTENTION: c1 needs to contain name;
+    static boolean isModified(String name, Commit c1, Commit c2) {
+         return !Objects.equals(c1.tryGetSha(name), c2.tryGetSha(name));
     }
 
     void save() {
@@ -61,6 +74,15 @@ class Commit implements Serializable {
     String sha() {
         return Utils.sha1(serialize(this));
     }
+
+
+
+
+
+
+
+
+
 
 
     List<Commit> ancestersList() {
@@ -115,6 +137,10 @@ class Commit implements Serializable {
             this.parent.printLogFromThis();
         }
     }
+
+
+
+
 
 
 

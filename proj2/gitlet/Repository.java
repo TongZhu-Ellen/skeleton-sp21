@@ -71,30 +71,34 @@ public class Repository {
             System.out.println("File does not exist in that commit.");
             System.exit(0);
         }
-        byte[] cont = commit.getFileContent(name);
+        byte[] cont = commit.tryGetContent(name);
         writeContents(join(CWD, name), cont);
 
     }
+
+
 
     static void checkOutCommit(Commit newHead) {
         Commit oldHead = MyUtils.getHeadCommit();
        Set<String> filesInNew = newHead.fileSet();
        Set<String> filesInOld = oldHead.fileSet();
-       Set<String> filesInCWD = MyUtils.filesInDir(CWD);
+        Set<String> filesInCWD = MyUtils.filesInDir(CWD);
 
-       for (String file: filesInCWD) {
-           if (!filesInOld.contains(file) && filesInNew.contains(file) && !sha1(MyUtils.readInFileNameCont(CWD, file)).equals(sha1(newHead.getFileContent(file)))) {
-               System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
-               System.exit(0);
-           }
-       }
+        for (String file: filesInCWD) {
+            if (!filesInOld.contains(file) && filesInNew.contains(file) && !sha1(MyUtils.readInFileNameCont(CWD, file)).equals(sha1(newHead.tryGetContent(file)))) {
+                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.exit(0);
+            }
+        }
+
+
 
        for (String file: filesInOld) {
            join(CWD, file).delete();
        }
 
        for (String file: filesInNew) {
-           byte[] content = newHead.getFileContent(file);
+           byte[] content = newHead.tryGetContent(file);
            MyUtils.saveInFileNameCont(CWD, file, content);
        }
 
@@ -113,7 +117,7 @@ public class Repository {
                 return a1;
             }
         }
-        return null;
+        throw new GitletException("These two Commits have no common ancestors?!!");
     }
 
 
@@ -141,6 +145,114 @@ public class Repository {
         }
     }
 
+
+
+
+    static void helpMerge(Commit givenBranch, Commit curBranch, Commit comAn, String givenBranchName) {
+
+        Set<String> useGiven = new HashSet<>(); // to be checked-out and staged;
+        Set<String> toBeDel = new HashSet<>(); // to be removed and untracked;
+        Set<String> conflict = new HashSet<>();
+
+
+        for (String file: comAn.fileSet()) {
+            if (Commit.isModified(file, comAn, givenBranch) && !Commit.isModified(file, comAn, curBranch)) {
+                useGiven.add(file);
+            }
+            if (!Commit.isModified(file, comAn, curBranch) && !givenBranch.contains(file)) {
+                toBeDel.add(file);
+            }
+        }
+
+        for (String file: givenBranch.fileSet()) {
+            if (!curBranch.contains(file) && !comAn.contains(file)) {
+                useGiven.add(file);
+            }
+        }
+
+        Set<String> inEither = givenBranch.fileSet();
+        inEither.addAll(curBranch.fileSet());
+        for (String file: inEither) {
+            if (Commit.isModified(file, givenBranch, curBranch)) {
+                conflict.add(file);
+            }
+        }
+
+        for (String file: useGiven) {
+            if (join(CWD, file).exists() && !curBranch.contains(file) && !sha1(readContents(join(CWD, file))).equals(givenBranch.tryGetSha(file))) {
+                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.exit(0);
+            }
+        }
+        for (String file: toBeDel) {
+            if (join(CWD, file).exists() && !curBranch.contains(file)) {
+                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.exit(0);
+            }
+        }
+
+        for (String file: useGiven) {
+            checkOutFile(file, givenBranch);
+            AddStage.putNameCont(file, givenBranch.tryGetContent(file));
+        }
+
+        for (String file: toBeDel) {
+            join(CWD, file).delete();
+            DelSet.tryRemove(file);
+        }
+
+
+        for (String file: conflict) {
+            String combined = "<<<<<<< HEAD\n" + curBranch.tryGetContentAsString(file) + "=======\n" + givenBranch.tryGetContentAsString(file) + ">>>>>>>\n";
+            byte[] content = serialize(combined);
+            BlobDir.tryAddCont(content);
+            AddStage.putNameCont(file, content);
+        }
+
+        if (AddStage.setOfFileNames().size() + DelSet.setOfFileNames().size() == 0) {
+            System.out.println("No changes added to the commit.");
+            System.exit(0);
+        }
+
+        Commit oldHeadComm = curBranch;
+        Commit newHeadComm = new Commit("Merged " + givenBranchName + " into " + MyUtils.getHeadBranchName() + ".", oldHeadComm);
+        newHeadComm.otherParent = givenBranch;
+
+
+        for (String name1: oldHeadComm.fileSet()) {
+            newHeadComm.putNameSha(name1, oldHeadComm.tryGetSha(name1));
+        }
+
+        for (String name2: AddStage.setOfFileNames()) {
+            byte[] content = AddStage.getContent(name2);
+            BlobDir.tryAddCont(content);
+            newHeadComm.putNameSha(name2, sha1(content));
+        }
+
+        for (String name3: DelSet.setOfFileNames()) {
+            newHeadComm.tryRemove(name3);
+        }
+
+        newHeadComm.save();
+        MyUtils.updateBranchWithHead(MyUtils.getHeadBranchName(), newHeadComm);
+
+        AddStage.clear();
+        DelSet.clear();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
 
 
 
