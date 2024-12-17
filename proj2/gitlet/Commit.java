@@ -143,6 +143,21 @@ class Commit implements Serializable {
 
 
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true; // 引用相等，直接返回 true
+        if (obj == null || getClass() != obj.getClass()) return false; // 类型不匹配
+        Commit commit = (Commit) obj;
+        return this.sha().equals(commit.sha()); // 使用 sha() 方法判断逻辑相等
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sha()); // 使用 sha() 方法生成哈希值
+    }
+
+
+
 
 
 }
