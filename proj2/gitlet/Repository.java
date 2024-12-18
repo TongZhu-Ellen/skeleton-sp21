@@ -85,7 +85,7 @@ public class Repository {
         Set<String> filesInCWD = MyUtils.filesInDir(CWD);
 
         for (String file: filesInCWD) {
-            if (!filesInOld.contains(file) && !sha1(readContents(join(CWD, file))).equals(sha1(newHead.tryGetContent(file)))) {
+            if (!filesInOld.contains(file) && newHead.contains(file) && !sha1(readContents(join(CWD, file))).equals(sha1(newHead.tryGetContent(file)))) {
                 System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
                 System.exit(0);
             }
@@ -179,7 +179,7 @@ public class Repository {
 
         for (String file: MyUtils.filesInDir(CWD)) {
             if (!curBranch.contains(file)) {
-                if (sha1(readContents(join(CWD, file))).equals(sha1(givenBranch.tryGetContent(file)))) {
+                if (givenBranch.contains(file) && sha1(readContents(join(CWD, file))).equals(sha1(givenBranch.tryGetContent(file)))) {
                     System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
                     System.exit(0);
                 }

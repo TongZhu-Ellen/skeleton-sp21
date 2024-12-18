@@ -63,7 +63,7 @@ public class Main {
 
                 byte[] curCont = readContents(fileInCWD);
                 Commit headCommit = MyUtils.getHeadCommit();
-                if (sha1(curCont).equals(sha1(headCommit.tryGetContent(name)))) {
+                if (headCommit.contains(name) && sha1(curCont).equals(sha1(headCommit.tryGetContent(name)))) {
                     AddStage.tryRemove(name);
                 } else {
                     AddStage.putNameCont(name, curCont);
