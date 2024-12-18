@@ -85,7 +85,7 @@ public class Repository {
         Set<String> filesInCWD = MyUtils.filesInDir(CWD);
 
         for (String file: filesInCWD) {
-            if (!filesInOld.contains(file) && filesInNew.contains(file) && !sha1(readContents(join(CWD, file))).equals(sha1(newHead.tryGetContent(file)))) {
+            if (!filesInOld.contains(file) && filesInNew.contains(file) && !sha1(MyUtils.readInFileNameCont(CWD, file)).equals(sha1(newHead.tryGetContent(file)))) {
                 System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
                 System.exit(0);
             }
@@ -99,7 +99,7 @@ public class Repository {
 
        for (String file: filesInNew) {
            byte[] content = newHead.tryGetContent(file);
-           writeObject(join(CWD, file), content);
+           MyUtils.saveInFileNameCont(CWD, file, content);
        }
 
        AddStage.clear();
@@ -150,75 +150,7 @@ public class Repository {
 
     static void helpMerge(Commit givenBranch, Commit curBranch, Commit comAn, String givenBranchName) {
 
-        Set<String> useGiven = new HashSet<>(); // to be checked-out and staged;
-         // to be removed and untracked;
-        Set<String> conflict = new HashSet<>();
 
-
-        for (String file: comAn.fileSet()) {
-            if (Commit.isModified(file, comAn, givenBranch) && !Commit.isModified(file, comAn, curBranch)) {
-                useGiven.add(file);
-            }
-        }
-
-        for (String file: givenBranch.fileSet()) {
-            if (!curBranch.contains(file) && !comAn.contains(file)) {
-                useGiven.add(file);
-            }
-        }
-
-        Set<String> inEither = new HashSet<>(givenBranch.fileSet());
-        inEither.addAll(curBranch.fileSet());
-        for (String file: inEither) {
-            if (Commit.isModified(file, givenBranch, curBranch) && Commit.isModified(file, comAn, curBranch)) {
-                conflict.add(file);
-            }
-        }
-
-        // check untracked files;
-
-        for (String file: MyUtils.filesInDir(CWD)) {
-            if (!curBranch.contains(file)) { // untracked;
-                if (useGiven.contains(file)) { // will be altered;
-                    if (!givenBranch.contains(file)) {
-                        System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
-                        System.exit(0);
-                    }
-                    if (givenBranch.contains(file) && !sha1(readContents(join(CWD, file))).equals(sha1(givenBranch.tryGetContent(file)))) {
-                        System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
-                        System.exit(0);
-                    }
-                }
-            }
-        }
-
-
-
-        for (String file: useGiven) {
-           if (givenBranch.contains(file)) {
-               byte[] cont = givenBranch.tryGetContent(file);
-               writeContents(join(CWD, file), cont);
-               AddStage.putNameCont(file, cont);
-           } else {
-               join(CWD, file).delete();
-               DelSet.add(file);
-           }
-        }
-
-
-
-
-        for (String file: conflict) {
-            String combined = "<<<<<<< HEAD\n" + curBranch.tryGetContentAsString(file) + "=======\n" + givenBranch.tryGetContentAsString(file) + ">>>>>>>\n";
-            byte[] content = serialize(combined);
-            writeContents(join(CWD, file), content);
-            AddStage.putNameCont(file, content);
-        }
-
-        if (AddStage.setOfFileNames().size() + DelSet.setOfFileNames().size() == 0) {
-            System.out.println("No changes added to the commit.");
-            System.exit(0);
-        }
 
         Commit oldHeadComm = curBranch;
         Commit newHeadComm = new Commit("Merged " + givenBranchName + " into " + MyUtils.getHeadBranchName() + ".", oldHeadComm);
@@ -245,9 +177,7 @@ public class Repository {
         AddStage.clear();
         DelSet.clear();
 
-        if (!conflict.isEmpty()) {
-            System.out.println("Encountered a merge conflict.");
-        }
+
 
 
 

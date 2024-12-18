@@ -10,6 +10,13 @@ import static gitlet.Utils.*;
 class MyUtils {
 
 
+    static void saveInFileNameCont(File dir, String name, byte[] content) {
+        writeContents(join(dir, name), content);
+    }
+
+    static byte[] readInFileNameCont(File file, String name) {
+        return readContents(join(file, name));
+    }
 
 
 

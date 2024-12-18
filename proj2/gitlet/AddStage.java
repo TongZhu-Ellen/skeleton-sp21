@@ -6,17 +6,17 @@ import java.util.Set;
 import static gitlet.MyUtils.*;
 
 import static gitlet.Repository.ADD_STAGE;
-import static gitlet.Utils.*;
+import static gitlet.Utils.join;
 
 public class AddStage {
 
 
     static void putNameCont(String name, byte[] content) {
-        writeContents(join(ADD_STAGE, name), content);
+        saveInFileNameCont(ADD_STAGE, name, content);
     }
 
     static byte[] getContent(String name) {
-        return readContents(join(ADD_STAGE, name));
+        return readInFileNameCont(ADD_STAGE, name);
     }
 
     static Set<String> setOfFileNames() {

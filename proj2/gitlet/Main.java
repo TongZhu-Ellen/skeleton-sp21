@@ -63,7 +63,7 @@ public class Main {
 
                 byte[] curCont = readContents(fileInCWD);
                 Commit headCommit = MyUtils.getHeadCommit();
-                if (headCommit.contains(name) && sha1(curCont).equals(sha1(headCommit.tryGetContent(name)))) {
+                if (headCommit.fileSet().contains(name) && sha1(curCont).equals(sha1(headCommit.tryGetContent(name)))) {
                     AddStage.tryRemove(name);
                 } else {
                     AddStage.putNameCont(name, curCont);
@@ -148,7 +148,7 @@ public class Main {
                         System.out.println("No need to checkout the current branch.");
                         System.exit(0);
                     }
-                    Repository.checkOutCommit(MyUtils.getBranchHead(branchName));
+                    checkOutCommit(MyUtils.getBranchHead(branchName));
                     MyUtils.setHeadBranchWithName(branchName);
                 } else {
                     System.out.println("Incorrect operands.");
