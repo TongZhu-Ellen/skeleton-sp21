@@ -2,7 +2,7 @@ package gitlet;
 
 import java.io.File;
 
-import static gitlet.MyUtils.readInFileNameCont;
+
 import static gitlet.Repository.BLOB_DIR;
 import static gitlet.Utils.*;
 
@@ -22,7 +22,7 @@ public class BlobDir {
         if (sha == null) {
             return null;
         } else {
-            return readInFileNameCont(BLOB_DIR, sha);
+            return readContents(join(BLOB_DIR, sha));
         }
     }
 
