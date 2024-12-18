@@ -157,7 +157,11 @@ public class Repository {
 
         for (String file: comAn.fileSet()) {
             if (Commit.isModified(file, comAn, givenBranch) && !Commit.isModified(file, comAn, curBranch)) {
-                useGiven.add(file);
+                if (givenBranch.contains(file)) {
+                    useGiven.add(file);
+                } else {
+                    toBeDel.add(file);
+                }
             }
             if (!Commit.isModified(file, comAn, curBranch) && !givenBranch.contains(file)) {
                 toBeDel.add(file);
