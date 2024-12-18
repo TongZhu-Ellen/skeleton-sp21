@@ -151,20 +151,13 @@ public class Repository {
     static void helpMerge(Commit givenBranch, Commit curBranch, Commit comAn, String givenBranchName) {
 
         Set<String> useGiven = new HashSet<>(); // to be checked-out and staged;
-        Set<String> toBeDel = new HashSet<>(); // to be removed and untracked;
+         // to be removed and untracked;
         Set<String> conflict = new HashSet<>();
 
 
         for (String file: comAn.fileSet()) {
             if (Commit.isModified(file, comAn, givenBranch) && !Commit.isModified(file, comAn, curBranch)) {
-                if (givenBranch.contains(file)) {
-                    useGiven.add(file);
-                } else {
-                    toBeDel.add(file);
-                }
-            }
-            if (!Commit.isModified(file, comAn, curBranch) && !givenBranch.contains(file)) {
-                toBeDel.add(file);
+                useGiven.add(file);
             }
         }
 
@@ -177,41 +170,31 @@ public class Repository {
         Set<String> inEither = new HashSet<>(givenBranch.fileSet());
         inEither.addAll(curBranch.fileSet());
         for (String file: inEither) {
-            if (Commit.isModified(file, givenBranch, curBranch)) {
+            if (Commit.isModified(file, givenBranch, curBranch) && Commit.isModified(file, comAn, curBranch)) {
                 conflict.add(file);
             }
         }
 
-        for (String file: useGiven) {
-            if (join(CWD, file).exists() && !curBranch.contains(file) && !sha1(readContents(join(CWD, file))).equals(givenBranch.tryGetSha(file))) {
-                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
-                System.exit(0);
-            }
-        }
-        for (String file: toBeDel) {
-            if (join(CWD, file).exists() && !curBranch.contains(file)) {
-                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
-                System.exit(0);
-            }
-        }
+
 
         for (String file: useGiven) {
-            byte[] cont = givenBranch.tryGetContent(file);
-            writeContents(join(CWD, file), cont);
-            AddStage.putNameCont(file, cont);
+           if (givenBranch.contains(file)) {
+               byte[] cont = givenBranch.tryGetContent(file);
+               writeContents(join(CWD, file), cont);
+               AddStage.putNameCont(file, cont);
+           } else {
+               join(CWD, file).delete();
+               DelSet.add(file);
+           }
         }
 
-        for (String file: toBeDel) {
-            join(CWD, file).delete();
-            DelSet.tryRemove(file);
-        }
+
 
 
         for (String file: conflict) {
             String combined = "<<<<<<< HEAD\n" + curBranch.tryGetContentAsString(file) + "=======\n" + givenBranch.tryGetContentAsString(file) + ">>>>>>>\n";
             byte[] content = serialize(combined);
             writeContents(join(CWD, file), content);
-            BlobDir.tryAddCont(content);
             AddStage.putNameCont(file, content);
         }
 
