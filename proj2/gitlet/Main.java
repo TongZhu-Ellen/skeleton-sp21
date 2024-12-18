@@ -148,7 +148,7 @@ public class Main {
                         System.out.println("No need to checkout the current branch.");
                         System.exit(0);
                     }
-                    checkOutCommit(MyUtils.getBranchHead(branchName));
+                    Repository.checkOutCommit(MyUtils.getBranchHead(branchName));
                     MyUtils.setHeadBranchWithName(branchName);
                 } else {
                     System.out.println("Incorrect operands.");
