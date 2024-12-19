@@ -2,6 +2,8 @@ package gitlet;
 
 import java.io.File;
 import java.util.*;
+import java.util.Objects;
+
 
 
 import static gitlet.Utils.*;
@@ -151,6 +153,79 @@ public class Repository {
     static void helpMerge(Commit givenBranch, Commit curBranch, Commit comAn, String givenBranchName) {
 
 
+        Set<String> useGiven = new HashSet<>();
+        Set<String> conflict = new HashSet<>();
+
+        for (String file: comAn.fileSet()) {
+            if (comAn.tryGetSha(file).equals(curBranch.tryGetSha(file)) && !comAn.tryGetSha(file).equals(givenBranch.tryGetSha(file))) {
+                useGiven.add(file);
+            }
+        } // this handles No.1 and 6;
+
+        for (String file: givenBranch.fileSet()) {
+            if (!comAn.contains(file) && !curBranch.contains(file)) {
+                useGiven.add(file);
+            }
+        } // this handles No.5;
+
+        Set<String> inEither = new HashSet<>(comAn.fileSet());
+        inEither.addAll(curBranch.fileSet());
+        inEither.addAll(givenBranch.fileSet());
+
+        for (String file: inEither) {
+            if (!Objects.equals(comAn.tryGetSha(file), curBranch.tryGetSha(file)) && !Objects.equals(comAn.tryGetSha(file), givenBranch.tryGetSha(file)) && !Objects.equals(curBranch.tryGetSha(file), givenBranch.tryGetSha(file))) {
+                conflict.add(file);
+            }
+        } // this handles No.8;
+
+
+
+        // check untracked;
+        for (String file: useGiven) {
+            if (join(CWD, file).exists() && !curBranch.contains(file)) { // then this is untracked;
+                if (!sha1(readContents(join(CWD, file))).equals(givenBranch.tryGetSha(file))) {
+                    System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                    System.exit(0);
+                }
+            }
+        }
+
+        for (String file: conflict) {
+            if (join(CWD, file).exists() && !curBranch.contains(file)) {
+                System.out.println("There is an untracked file in the way; delete it, or add and commit it first.");
+                System.exit(0);
+            }
+        }
+
+        for (String file: useGiven) {
+            if (givenBranch.contains(file)) {
+                byte[] content = givenBranch.tryGetContent(file);
+                writeContents(join(CWD, file), content);
+                AddStage.putNameCont(file, content);
+            } else {
+                join(CWD, file).delete();
+                DelSet.add(file);
+            }
+        }
+
+        for (String file: conflict) {
+            String str = "<<<<<<< HEAD\n" + curBranch.tryGetContentAsString(file) + "=======\n" + givenBranch.tryGetContentAsString(file) + ">>>>>>>\n";
+            byte[] content = serialize(str);
+            writeContents(join(CWD, file), content);
+            AddStage.putNameCont(file, content);
+
+        }
+
+
+
+
+
+
+
+
+
+
+
 
         Commit oldHeadComm = curBranch;
         Commit newHeadComm = new Commit("Merged " + givenBranchName + " into " + MyUtils.getHeadBranchName() + ".", oldHeadComm);
@@ -178,6 +253,9 @@ public class Repository {
         DelSet.clear();
 
 
+        if (!conflict.isEmpty()) {
+            System.out.println("Encountered a merge conflict.");
+        }
 
 
 
