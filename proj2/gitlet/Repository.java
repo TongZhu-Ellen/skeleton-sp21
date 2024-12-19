@@ -210,9 +210,9 @@ public class Repository {
 
         for (String file: conflict) {
             String str = "<<<<<<< HEAD\n" + curBranch.tryGetContentAsString(file) + "=======\n" + givenBranch.tryGetContentAsString(file) + ">>>>>>>\n";
-            byte[] content = serialize(str);
-            writeContents(join(CWD, file), content);
-            AddStage.putNameCont(file, content);
+
+            writeContents(join(CWD, file), str);
+            AddStage.putNameCont(file, str);
 
         }
 

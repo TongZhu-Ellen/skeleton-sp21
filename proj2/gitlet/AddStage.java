@@ -7,12 +7,17 @@ import static gitlet.MyUtils.*;
 
 import static gitlet.Repository.ADD_STAGE;
 import static gitlet.Utils.join;
+import static gitlet.Utils.writeContents;
 
 public class AddStage {
 
 
     static void putNameCont(String name, byte[] content) {
         saveInFileNameCont(ADD_STAGE, name, content);
+    }
+
+    static void putNameCont(String name, String str) {
+        writeContents(join(ADD_STAGE, name), str);
     }
 
     static byte[] getContent(String name) {
