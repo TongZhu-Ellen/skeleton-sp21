@@ -3,6 +3,8 @@ package byow.Core;
 import byow.TileEngine.TERenderer;
 import byow.TileEngine.TETile;
 
+import java.util.Random;
+
 public class Engine {
     TERenderer ter = new TERenderer();
     /* Feel free to change the width and height. */
@@ -46,7 +48,35 @@ public class Engine {
         // See proj3.byow.InputDemo for a demo of how you can make a nice clean interface
         // that works for many different input types.
 
-        TETile[][] finalWorldFrame = null;
-        return finalWorldFrame;
+
+
+
+        long seed = extractSeed(input);
+        HelpEngine.setSeed(seed);
+        HelpEngine.setCanvas(40, 70, 5);
+        for (int i  = 0; i <= 5; i++) {
+            HelpEngine.tryAddRec(2, 6);
+        }
+        HelpEngine.connectRooms();
+        HelpEngine.buildWalls();
+
+
+
+
+
+        return HelpEngine.returnCurWorld();
+    }
+
+
+
+
+
+
+
+
+    private static long extractSeed(String input) {
+        String seedStr = input.substring(1, input.length() - 1);
+        return Long.parseLong(seedStr);
+
     }
 }
